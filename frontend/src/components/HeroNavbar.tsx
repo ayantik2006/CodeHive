@@ -1,5 +1,4 @@
 import { Menu } from "lucide-react";
-import logo from "../assets/logo.png";
 
 function HeroNavbar() {
   return (
