@@ -44,7 +44,7 @@ function Hero() {
         <img src={heroEditor} className="w-[30rem] [@media(max-width:1449px)]:hidden" />
       </div>
 
-      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:786px)]:px-2 mt-[-1rem] items-center justify-center">
+      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[-1rem] items-center justify-center">
         <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
             <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold"><Radio size={30} className="text-[#6c41d0]"/>Real Time</h1>
             <p className="text-[#7A7B7D]">
