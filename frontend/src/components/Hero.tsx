@@ -1,4 +1,4 @@
-import HeroNavbar from "./HeroNavbar";
+import HeroNavbar from "./HeroNavbar.tsx";
 import heroEditor from "../assets/heroEditor.png";
 import { Badge } from "@/components/ui/badge";
 import { CloudUpload, Code, MessageCircle, Radio, UsersRound } from "lucide-react";
