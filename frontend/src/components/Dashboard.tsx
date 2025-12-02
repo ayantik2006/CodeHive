@@ -60,7 +60,7 @@ function Dashboard() {
       <MainNavbar />
 
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between [@media(max-width:1013px)]:justify-center bg-gradient-to-b from-[#f5f3f307] to-transparent bg-[url('../../public/grid.svg')] opacity-[5]">
+        <div className="flex items-center justify-between [@media(max-width:1013px)]:justify-center bg-gradient-to-b from-[#f5f3f307] to-transparent bg-[url('../../grid.svg')] opacity-[5]">
           <div className="m-8 flex flex-col [@media(max-width:1013px)]:items-center [@media(max-width:1013px)]:text-center">
             <div className="flex flex-wrap gap-2 items-center">
               <Badge
