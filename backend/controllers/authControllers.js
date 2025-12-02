@@ -102,3 +102,14 @@ export async function logout(req, res) {
     return res.status(404).json({});
   }
 }
+
+export async function userInfo(req,res){
+  let user;
+  try {
+    user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
+  } catch (e) {
+    return res.status(404).json({});
+  }
+  const userData=await Account.findOne({email:user});
+  return res.json({userData});
+}

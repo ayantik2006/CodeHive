@@ -1,5 +1,5 @@
 import { Bell, Menu } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Link } from "react-router-dom";
 import {
@@ -15,8 +15,21 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function MainNavbar() {
-  const BACKEND_URL=import.meta.env.VITE_BACKEND_URL;
-  const navigate=useNavigate();
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const navigate = useNavigate();
+  const [userData,setUserData]=useState({});
+
+  useEffect(() => {
+    try {
+      axios
+        .post(BACKEND_URL + "/auth/user-info", {}, { withCredentials: true })
+        .then((res) => {
+          setUserData(res.data.userData);
+        });
+    } catch (e) {
+      console.log(e);
+    }
+  }, [BACKEND_URL]);
 
   return (
     <div className="h-[4rem] border-b-1 border-[#1C1D24] flex gap-5 items-center justify-between sticky top-0 bg-[#07080D]">
@@ -71,22 +84,26 @@ function MainNavbar() {
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
             <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback>AS</AvatarFallback>
+              <AvatarFallback>
+                {userData?.name?.split(" ")[0][0]+userData?.name?.split(" ")[userData?.name?.split(" ").length-1][0]}
+              </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="w-48 bg-[#0f0f14] border border-white/10"
+            className="bg-[#0f0f14] border border-white/10 w-fit min-w-[48px]"
           >
             <DropdownMenuLabel className="text-gray-300">
               Signed in as
               <br />
-              <span className="font-semibold">ayantik@example.com</span>
+              <span className="font-semibold text-gray-400">
+                {userData?.email?.split(" ")[0]}
+              </span>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-[#2a2b34]"/>
 
             <DropdownMenuItem className="cursor-pointer text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white duration-300">
               Profile
@@ -96,16 +113,19 @@ function MainNavbar() {
               Settings
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-[#2a2b34]"/>
 
             <DropdownMenuItem
               className="text-red-400 cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-red-300"
-              onClick={async ()=>{
-                try{
-                  await axios.post(BACKEND_URL+"/auth/logout",{},{withCredentials:true});                  
+              onClick={async () => {
+                try {
+                  await axios.post(
+                    BACKEND_URL + "/auth/logout",
+                    {},
+                    { withCredentials: true }
+                  );
                   navigate("/");
-                }
-                catch(e){
+                } catch (e) {
                   console.log(e);
                 }
               }}

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainNavbar from "./MainNavbar";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/resizable";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -43,12 +44,26 @@ import emptyProject from "../assets/emptyProject.png";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [userData, setUserData] = useState({});
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     axios
       .post(BACKEND_URL + "/auth/user", {}, { withCredentials: true })
       .then(() => {
         navigate("/dashboard");
+        try {
+          axios
+            .post(
+              BACKEND_URL + "/auth/user-info",
+              {},
+              { withCredentials: true }
+            )
+            .then((res) => {
+              setUserData(res.data.userData);
+            });
+        } catch (e) {
+          console.log(e);
+        }
       })
       .catch(() => {
         navigate("/");
@@ -74,19 +89,21 @@ function Dashboard() {
                 variant="default"
                 className="bg-[#1b1b25] border border-[#2a2a37]"
               >
-                 <CloudCheck />Cloud-Sync workflow
+                <CloudCheck />
+                Cloud-Sync workflow
               </Badge>
               <Badge
                 variant="default"
                 className="bg-[#1b1b25] border border-[#2a2a37]"
               >
-                <Bot />AI assisted coding
+                <Bot />
+                AI assisted coding
               </Badge>
             </div>
             <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex text-shadow-[0_0_px]">
               Welcome back,&nbsp;{" "}
               <p className="bg-gradient-to-r from-[#7233e7] to-[#8d66d5] bg-clip-text text-transparent">
-                Ayantik{" "}
+                {userData?.name?.split(" ")[0] || ""}{" "}
               </p>
               👋
             </h1>
@@ -174,7 +191,7 @@ function Dashboard() {
                 <label>Visibility</label>
                 <div className="flex gap-2 h-[2.6rem]">
                   <div className="bg-[#241840] border-1 border-[#653FBD] flex-1 rounded-[0.4rem] flex flex-col items-center">
-                    <div className="flex mx-2 my-2 gap-2 items-center cursor-pointer self-start">
+                    <div className="flex mx-2 my-2 gap-2 cursor-pointer self-start items-center justify-center">
                       <input
                         type="radio"
                         name="visibility"
@@ -230,12 +247,14 @@ function Dashboard() {
                   >
                     Create
                   </button>
-                  <button
-                    className="bg-transparent border-1 border-[#272831] px-3 py-1 rounded-[0.3rem]"
-                    type="button"
-                  >
-                    Cancel
-                  </button>
+                  <DialogClose asChild>
+                    <button
+                      className="bg-[#17171d] border-1 border-[#272831] px-3 py-1 rounded-[0.3rem] cursor-pointer hover:bg-[#272831] duration-300"
+                      type="button"
+                    >
+                      Cancel
+                    </button>
+                  </DialogClose>
                 </div>
               </form>
             </DialogContent>
@@ -243,37 +262,25 @@ function Dashboard() {
         </div>
         <div className="flex gap-8 flex-wrap mx-8 [@media(max-width:928px)]:justify-center mb-5 mt-[-0.8rem]">
           <div className="w-[13rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2   hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-            <FolderPlus
-              className="stroke-[#4E29A4]"
-              size={"22px"}
-            />
+            <FolderPlus className="stroke-[#4E29A4]" size={"22px"} />
             <p className="text-[#acabab] text-[1rem] font-semibold">
               Create New Project
             </p>
           </div>
           <div className="w-[13.5rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2  hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-            <Github
-              className="stroke-[#ffffff] fill-black"
-              size={"21px"}
-            />
+            <Github className="stroke-[#ffffff] fill-black" size={"21px"} />
             <p className="text-[#acabab] text-[1rem] font-semibold">
               Import from GitHub
             </p>
           </div>
           <div className="w-[12.5rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2  hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-            <UsersRound
-              className="stroke-[#4E29A4]"
-              size={"22px"}
-            />
+            <UsersRound className="stroke-[#4E29A4]" size={"22px"} />
             <p className="text-[#acabab] text-[1rem] font-semibold">
               Create New Team
             </p>
           </div>
           <div className="w-[9rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2 duration-300 cursor-pointer hover:shadow-[0_0_10px_#4E29A4] hover:-translate-y-[0.1rem] transition-all">
-            <FileText
-              className="stroke-[#4E29A4]"
-              size={"21px"}
-            />
+            <FileText className="stroke-[#4E29A4]" size={"21px"} />
             <p className="text-[#acabab] text-[1rem] font-semibold [@media(max-width:632px)]:text-[1rem] ">
               View Docs
             </p>
@@ -293,7 +300,7 @@ function Dashboard() {
                 Recent Activity
               </h1>
               <div className="text-gray-400  mt-4 italic text-center flex flex-col items-center mt-15">
-                <img src={emptySVG} className="w-[20rem] mb-5 opacity-45"/>
+                <img src={emptySVG} className="w-[20rem] mb-5 opacity-45" />
                 <p>No activity to show</p>
               </div>
             </ResizablePanel>
@@ -306,12 +313,12 @@ function Dashboard() {
                 Your Projects
               </h1>
               <div className="mt-4 flex flex-col items-center">
-                <div className="text-gray-400 italic text-center flex flex-col items-center">
-                  <img src={emptyProject} className="w-[4rem]"/>
+                <div className="text-gray-400 italic text-center flex flex-col items-center mt-[3rem]">
+                  <img src={emptyProject} className="w-[4rem]" />
                   <p>You have no projects. Click below to create one</p>
                 </div>
                 <button className="text-gray-300 mt-3 font-semibold bg-[#23242c] py-3 rounded-[0.4rem] text-[1rem] flex gap-1 items-center justify-center cursor-pointer hover:opacity-85 duration-300 w-[8rem] h-[2.3rem]">
-                  <Plus className="mt-[0.2rem]" size={20}/>
+                  <Plus className="mt-[0.2rem]" size={20} />
                   Create
                 </button>
               </div>
