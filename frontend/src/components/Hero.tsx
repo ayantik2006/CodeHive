@@ -29,7 +29,7 @@ function Hero() {
   }, [BACKEND_URL, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#0F0F10] flex flex-col gap-5 [@media(max-width:1449px)]:items-center bg-[url('../../public/grid.svg')]">
+    <div className="min-h-screen bg-[#0F0F10] flex flex-col gap-5 [@media(max-width:1449px)]:items-center bg-[url('../../grid.svg')]">
       <HeroNavbar />
 
       <div className="flex flex-wrap px-[13rem] [@media(max-width:786px)]:px-2 [@media(max-width:786px)]:px-2 justify-between items-center py-[2rem]">

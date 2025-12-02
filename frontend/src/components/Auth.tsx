@@ -25,7 +25,7 @@ function Auth() {
   }, [BACKEND_URL, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#0F0F10] flex flex-col bg-[url('../../public/grid.svg')]">
+    <div className="min-h-screen bg-[#0F0F10] flex flex-col bg-[url('../../grid.svg')]">
       <HeroNavbar />
       <Toaster
         position="bottom-center"
