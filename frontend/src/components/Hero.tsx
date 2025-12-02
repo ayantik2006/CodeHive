@@ -9,10 +9,27 @@ import {
   UsersRound,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Hero() {
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .post(BACKEND_URL + "/auth/user", {}, { withCredentials: true })
+      .then(() => {
+        navigate("/dashboard");
+      })
+      .catch(() => {
+        // navigate("/");
+      });
+  }, [BACKEND_URL, navigate]);
+
   return (
-    <div className="min-h-screen bg-[#0F0F10] flex flex-col gap-5 [@media(max-width:1449px)]:items-center">
+    <div className="min-h-screen bg-[#0F0F10] flex flex-col gap-5 [@media(max-width:1449px)]:items-center bg-[url('../../public/grid.svg')]">
       <HeroNavbar />
 
       <div className="flex flex-wrap px-[13rem] [@media(max-width:786px)]:px-2 [@media(max-width:786px)]:px-2 justify-between items-center py-[2rem]">
@@ -56,7 +73,7 @@ function Hero() {
         />
       </div>
 
-      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[-1rem] items-center justify-center mb-2">
+      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[-1rem] items-center justify-center mb-5">
         <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <Radio size={30} className="text-[#6c41d0]" />
