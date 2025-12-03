@@ -1,53 +1,39 @@
 import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    owner: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
-    languages: [
-      {
-        type: String,
-        enum: ["cpp", "java", "node", "python"],
-        required: true,
-      }
-    ],
-
-    visibility: {
-      type: String,
-      enum: ["public", "collaborators", "private"],
-      default: "private",
-    },
-
-    collaborators: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      }
-    ],
-
-    files: [
-      {
-        name: String,
-        path: String,
-        language: String,
-        content: {
-          type: String,
-          default: "",
-        },
-      }
-    ],
+const schema = new mongoose.Schema({
+  name: {
+    type: String,
+    default: "",
   },
 
-);
+  owner: {
+    type: String,
+    default: "",
+  },
 
-export default mongoose.model("Project", projectSchema);
+  language: {
+    type: String,
+    default: "",
+  },
+
+  visibility: {
+    type: String,
+    default: "public",
+  },
+
+  collaborators: {
+    type: Array,
+    default: [],
+  },
+
+  files: {
+    type: Array,
+    default: [],
+  },
+
+  creationTime: { type: Number, default: 0 },
+
+  editedTime: { type: Number, default: 0 },
+});
+
+export default mongoose.model("Project", schema);

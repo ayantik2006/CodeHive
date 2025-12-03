@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
+import projectRoutes from "./routes/projectRoutes.js";
 import connectMongodb from "./config/db.js";
 import cookieParser from "cookie-parser";
 
@@ -28,4 +29,5 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/project", projectRoutes);
 

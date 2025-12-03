@@ -4,22 +4,9 @@ import Auth from "./components/Auth.tsx";
 import Dashboard from "./components/Dashboard.tsx";
 import { useEffect } from "react";
 import axios from "axios";
+import Editor from "./components/Editor.tsx";
 
-function App() {
-  // const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-  // const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   axios
-  //     .post(BACKEND_URL + "/auth/user", {}, { withCredentials: true })
-  //     .then(() => {
-  //       navigate("/dashboard");
-  //     })
-  //     .catch(() => {
-  //       navigate("/");
-  //     });
-  // }, [BACKEND_URL, navigate]);
-  
+function App() {  
   return (
     <>
       <BrowserRouter>
@@ -27,6 +14,7 @@ function App() {
           <Route path="/" element={<Hero />}></Route>
           <Route path="/auth" element={<Auth />}></Route>
           <Route path="/dashboard" element={<Dashboard />}></Route>
+          <Route path="/editor/:projectId" element={<Editor />}></Route>
         </Routes>
       </BrowserRouter>
     </>

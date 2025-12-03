@@ -83,7 +83,7 @@ function MainNavbar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
-            <Avatar className="h-8 w-8 cursor-pointer">
+            <Avatar className="h-8 w-8 cursor-pointer font-semibold">
               <AvatarFallback>
                 {userData?.name?.split(" ")[0][0]+userData?.name?.split(" ")[userData?.name?.split(" ").length-1][0]}
               </AvatarFallback>
