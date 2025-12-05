@@ -19,11 +19,6 @@ import {
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -41,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import emptySVG from "../assets/empty.svg";
 import emptyProject from "../assets/emptyProject.png";
 import { Toaster } from "./ui/sonner";
 import { toast } from "sonner";
@@ -101,7 +95,7 @@ function Dashboard() {
   }, [BACKEND_URL, navigate]);
 
   return (
-    <div className="w-screen min-h-screen bg-[#07080D] flex flex-col ">
+    <div className="w-screen min-h-screen bg-[#0F0F10] flex flex-col ">
       <MainNavbar />
       <Toaster
         position="bottom-center"

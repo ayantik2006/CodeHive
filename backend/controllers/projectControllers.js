@@ -36,3 +36,44 @@ export async function deleteProject(req,res){
   await Project.deleteOne({_id:projectId});
   return res.status(200).json({msg:"project deleted"});
 }
+
+export async function getProjectDetails(req,res){
+  const projectId=req.body.id;
+  const projectDetails=await Project.findOne({_id:projectId});
+  return res.status(200).json({projectDetails:projectDetails});
+}
+
+export async function createFile(req,res){
+  const {projectId,fileName}=req.body;
+  // console.log(req.body);
+  const projectData=await Project.findOne({_id:projectId});
+  const files=projectData.files;
+  files.push({
+    name:fileName,
+    content:""
+  });
+  await Project.updateOne({_id:projectId},{files:files});
+  res.status(200).json({msg:"new file created",projectDetails:projectData});
+}
+
+export async function deleteFile(req,res){
+  const {id,fileName}=req.body;
+  let projectData=await Project.findOne({_id:id});
+  let files=projectData.files;
+  let newFiles=[];
+  for(let file of files){
+    if(file.name!==fileName){
+      newFiles.push(file);
+    }
+  }
+  await Project.updateOne({_id:id},{files:newFiles});
+  projectData=await Project.findOne({_id:id});
+  return res.status(200).json({msg:"file deleted",projectDetails:projectData})
+}
+
+export async function renameFile(req,res){
+  const {id,fileName}=req.body;
+  let projectData=await Project.findOne({_id:id});
+  let files=projectData.files;
+  let newFiles=[];
+}
