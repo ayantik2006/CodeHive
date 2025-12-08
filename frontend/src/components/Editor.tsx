@@ -6,8 +6,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "./ui/resizable";
-import { CircleAlert, SquarePlus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CircleAlert, Play, Settings, SquarePlus } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import emptyProject from "../assets/emptyProject.png";
 import {
@@ -33,17 +33,48 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { Toaster } from "./ui/sonner";
 import { toast } from "sonner";
 import isValidFilename from "valid-filename";
+import MonacoEditor from "@monaco-editor/react";
+import selectToStart from "../assets/selectToStart.png";
+
+function cleanError(stderr) {
+  const firstLine = stderr
+    .split("\n")
+    .find((line) => line.includes("Error") || line.includes("Exception"));
+
+  const codeLineMatch = stderr.match(/file0\.code:(\d+)/);
+  const lineNumber = codeLineMatch ? codeLineMatch[1] : null;
+
+  return {
+    message: firstLine || "Unknown error",
+    line: lineNumber,
+    raw: stderr,
+  };
+}
 
 function Editor() {
   const { projectId } = useParams();
   const [projectDetails, setProjectDetails] = useState({});
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [IsFileExist, setIsFileExist] = useState(false);
+  const editorRef = useRef(null);
+  const [isCodeRunning, setIsCodeRunning] = useState(false);
+  const [codeOutput, setCodeOutput] = useState(
+    "Run the code to see the output"
+  );
+  const [isError, setIsError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [editorValue, setEditorValue] = useState("");
   const languageExtension = {
     nodejs: ".js",
     python: ".py",
     cpp: ".cpp",
     java: ".java",
+  };
+  const languageName = {
+    nodejs: "javascript",
+    python: "python",
+    cpp: "cpp",
+    java: "java",
   };
 
   useEffect(() => {
@@ -125,7 +156,10 @@ function Editor() {
                             });
                             return;
                           }
-                          if (!isValidFilename(fileName) || fileName.includes(".")) {
+                          if (
+                            !isValidFilename(fileName) ||
+                            fileName.includes(".")
+                          ) {
                             toast("Invalid file name!", {
                               style: {
                                 border: "2px solid red",
@@ -157,6 +191,11 @@ function Editor() {
                               }" created`
                             );
                             setIsFileExist(true);
+                            setSelectedFile(
+                              fileName +
+                                languageExtension[projectDetails.language]
+                            );
+                            editorRef.current.setValue("");
                           } catch (e) {
                             console.log(e);
                           }
@@ -252,8 +291,17 @@ function Editor() {
                     <ContextMenu>
                       <ContextMenuTrigger>
                         <div
-                          className="bg-[#1c1d2d h-fit py-1 rounded-[0.3rem] px-2 text-[0.9rem] flex items-center justify-start w-fit min-w-[12.5rem] cursor-pointer hover:bg-[#1C1D24]"
+                          className={`bg-[#1c1d2d h-fit py-1 rounded-[0.3rem] px-2 text-[0.9rem] flex items-center justify-start w-fit min-w-[12.5rem] cursor-pointer hover:bg-[#1C1D24] ${
+                            selectedFile === file.name
+                              ? "bg-[#1C1D24] font-bold"
+                              : ""
+                          }`}
                           key={index}
+                          onClick={() => {
+                            setSelectedFile(file.name);
+                            setEditorValue(file.content);
+                            editorRef.current.setValue(file.content);
+                          }}
                         >
                           <div className="mr-1 bg-[#3C210E] text-[#E27311] rounded-[0.2rem] px-1 font-bold">
                             {languageExtension[projectDetails.language]
@@ -266,20 +314,162 @@ function Editor() {
                         </div>
                       </ContextMenuTrigger>
                       <ContextMenuContent className="bg-[#0C0E15] text-white border-1 border-[#1C1D24]">
-                        <ContextMenuItem className="hover:bg-[#191d2a] cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white" onClick={()=>{
-                            
-                        }}>
-                          Rename "{file.name}"
-                        </ContextMenuItem>
-                        <ContextMenuItem className="text-[#D65658] hover:bg-[#0C0E15] cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-[#c85153]" onClick={async ()=>{
-                            try{
-                                const response=await axios.post(BACKEND_URL+"/project/delete-file",{id:projectDetails._id,fileName:file.name},{withCredentials:true});
-                                setProjectDetails({...response.data.projectDetails,files:response.data.projectDetails.files.reverse()});
+                        <Dialog
+                          onOpenChange={(e) => {
+                            if (e) setIsFileExist(false);
+                          }}
+                        >
+                          <DialogTrigger className="text-[0.9rem] cursor-pointer hover:bg-[#1C1D24] px-2 py-1 rounded-[0.3rem]">
+                            Rename "{file.name}"
+                          </DialogTrigger>
+                          <DialogContent className="bg-[#0C0E15] border-1 border-[#1C1D24] text-white">
+                            <DialogHeader>
+                              <DialogTitle>Rename "{file.name}"</DialogTitle>
+                              <DialogDescription>
+                                Rename the file, make sure to give it a unique
+                                name
+                              </DialogDescription>
+                            </DialogHeader>
+                            <form
+                              className="flex flex-col gap-2"
+                              onSubmit={async (e) => {
+                                e.preventDefault();
+                                const newFileName = e.currentTarget[0].value;
+                                if (newFileName.trim() === "") {
+                                  toast("Invalid file name!", {
+                                    style: {
+                                      border: "2px solid red",
+                                    },
+                                  });
+                                  return;
+                                }
+                                if (
+                                  !isValidFilename(newFileName) ||
+                                  newFileName.includes(".")
+                                ) {
+                                  toast("Invalid file name!", {
+                                    style: {
+                                      border: "2px solid red",
+                                    },
+                                  });
+                                  return;
+                                }
+
+                                try {
+                                  const response = await axios.post(
+                                    BACKEND_URL + "/project/rename-file",
+                                    {
+                                      projectId: projectId,
+                                      newFileName:
+                                        newFileName +
+                                        languageExtension[
+                                          projectDetails.language
+                                        ],
+                                      oldFileName: file.name,
+                                    },
+                                    { withCredentials: true }
+                                  );
+                                  toast(
+                                    `File "${file.name}" renamed to "${
+                                      newFileName +
+                                      languageExtension[projectDetails.language]
+                                    }"`
+                                  );
+                                  setProjectDetails({
+                                    ...response.data.projectDetails,
+                                    files:
+                                      response.data.projectDetails.files.reverse(),
+                                  });
+                                  setIsFileExist(true);
+                                } catch (e) {
+                                  console.log(e);
+                                }
+                              }}
+                            >
+                              <label htmlFor="new-file">New name</label>
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="File name"
+                                  id="new-file"
+                                  required
+                                  defaultValue={file.name.split(".")[0]}
+                                  className="selection:bg-blue-800"
+                                  onInput={(e) => {
+                                    const fileName =
+                                      e.currentTarget.value.trim() +
+                                      languageExtension[
+                                        projectDetails.language
+                                      ];
+                                    for (let file of projectDetails.files) {
+                                      if (file.name === fileName) {
+                                        setIsFileExist(true);
+                                        break;
+                                      } else {
+                                        setIsFileExist(false);
+                                      }
+                                    }
+                                  }}
+                                />
+                                <div className="bg-[#5c5b5b] py-[0.4rem] px-4 font-semibold rounded-[0.4rem]">
+                                  {languageExtension[projectDetails.language]}
+                                </div>
+                              </div>
+                              {IsFileExist && (
+                                <Alert
+                                  variant="default"
+                                  className="bg-transparent border-none p-0 mt-[-0.6rem] ml-[-0.3rem]"
+                                >
+                                  <AlertDescription className="text-[#D1010C] font-semibold ml-1 mt-2 flex">
+                                    <CircleAlert
+                                      size={17}
+                                      className="mt-[0.12rem]"
+                                    />
+                                    File already exists!
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                              <DialogFooter className="mt-2">
+                                <DialogClose asChild>
+                                  <Button
+                                    variant="outline"
+                                    className="bg-[#17171D] border-1 border-[#2c2e3f] hover:bg-[#17171D] hover:text-white cursor-pointer"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </DialogClose>
+                                <Button
+                                  type="submit"
+                                  className={`bg-[#4E29A4] hover:bg-[#43238d] cursor-pointer px-5 ${
+                                    IsFileExist
+                                      ? "bg-gray-500 pointer-events-none"
+                                      : ""
+                                  }`}
+                                >
+                                  Create
+                                </Button>
+                              </DialogFooter>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                        <ContextMenuItem
+                          className="text-[#D65658] hover:bg-[#0C0E15] cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-[#c85153]"
+                          onClick={async () => {
+                            try {
+                              const response = await axios.post(
+                                BACKEND_URL + "/project/delete-file",
+                                { id: projectDetails._id, fileName: file.name },
+                                { withCredentials: true }
+                              );
+                              setProjectDetails({
+                                ...response.data.projectDetails,
+                                files:
+                                  response.data.projectDetails.files.reverse(),
+                              });
+                            } catch (e) {
+                              console.log(e);
                             }
-                            catch(e){
-                                console.log(e);
-                            }
-                        }}>
+                          }}
+                        >
                           Delete "{file.name}"
                         </ContextMenuItem>
                       </ContextMenuContent>
@@ -294,18 +484,151 @@ function Editor() {
 
           <ResizablePanel defaultSize={50} className="">
             <ResizablePanelGroup direction="vertical" className="h-full">
-              <ResizablePanel defaultSize={75}>
-                <div className="flex h-full items-center justify-center p-6">
-                  <span className="font-semibold">Two</span>
+              {selectedFile === null && (
+                <div className="h-full flex items-center justify-center">
+                  <div className="flex">
+                    <img src={selectToStart} className="w-[17rem]" />
+                  </div>
                 </div>
+              )}
+              {selectedFile !== null && (
+                <div
+                  className={`h-[3rem] border-b-1 border-gray-700 flex items-center justify-center gap-2 w-full `}
+                >
+                  <div
+                    className={`flex items-center gap-2 cursor-pointer bg-[#1E1E1E] px-3 py-1 rounded-[0.3rem] hover:bg-[#323232] ${
+                      isCodeRunning ? "bg-gray-700 pointer-events-none" : ""
+                    }`}
+                    onClick={async () => {
+                      const code = editorRef.current.getValue();
+                      setIsCodeRunning(true);
+                      try {
+                        const response = await axios.post(
+                          BACKEND_URL + "/project/run-code",
+                          {
+                            code: code,
+                            language: languageName[projectDetails.language],
+                          },
+                          { withCredentials: true }
+                        );
+                        const data = response.data.data;
+
+                        if (data.run.stderr !== "") {
+                          const err = cleanError(data.run.stderr);
+                          setIsError(true);
+                          setCodeOutput(
+                            `Error on line ${err.line}: ${err.message}`
+                          );
+                        } else {
+                          setIsError(false);
+                          setCodeOutput(data.run.output);
+                        }
+                      } catch (e) {
+                        console.log(e);
+                      }
+                      setIsCodeRunning(false);
+                    }}
+                  >
+                    <Play
+                      className={`fill-[#4E29A4] stroke-[#4E29A4] mt-[0.1rem] ${
+                        isCodeRunning ? "fill-gray-800 stroke-gray-800" : ""
+                      }`}
+                    />
+                    <p className="font-bold text-[#dad9d9]">
+                      {isCodeRunning ? "Running..." : "Run Code"}
+                    </p>
+                  </div>
+                  <div className="flex cursor-pointer bg-[#1E1E1E] py-[0.45rem] rounded-[0.3rem] px-3">
+                    <Dialog>
+                      <DialogTrigger>
+                        <Settings
+                          className="stroke-[#848383] mt-[0.15rem] hover:stroke-white duration-300 cursor-pointer"
+                          size={18}
+                        />
+                      </DialogTrigger>
+                      <DialogContent className="bg-[#0C0E15] text-white border-1 border-[#1C1D24]">
+                        <DialogHeader>
+                          <DialogTitle>Editor Settings</DialogTitle>
+                          <DialogDescription>
+                            Choose your settings for the IDE
+                          </DialogDescription>
+                        </DialogHeader>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+              )}
+              <ResizablePanel defaultSize={75} className="flex flex-col">
+                {selectedFile !== null && (
+                  <MonacoEditor
+                    height="90vh"
+                    language={languageName[projectDetails.language]}
+                    theme="vs-dark"
+                    onMount={(editor, monaco) => {
+                      editor.updateOptions({ tabSize: 4 });
+                      editor.updateOptions({
+                        mouseWheelZoom: true,
+                        automaticLayout: true,
+                        quickSuggestions: true, 
+                        suggestOnTriggerCharacters: true, 
+                        acceptSuggestionOnEnter: "on",
+                        wordBasedSuggestions: "currentDocument", 
+                        snippetSuggestions: "inline",
+                        fontSize:24
+                      });
+                      editorRef.current = editor;
+                      editor.setValue(editorValue);
+                      editor.onKeyUp(async (e) => {
+                        const code = editor.getValue();
+                        try {
+                          const res = await axios.post(
+                            BACKEND_URL + "/project/save-file",
+                            {
+                              code: code,
+                              projectId: projectId,
+                              fileName: selectedFile,
+                            },
+                            { withCredentials: true }
+                          );
+                          const files = res.data.files;
+                          setProjectDetails({
+                            ...projectDetails,
+                            files: files,
+                          });
+                        } catch (e) {
+                          console.log(e);
+                        }
+                      });
+                    }}
+                  />
+                )}
               </ResizablePanel>
 
               <ResizableHandle className="bg-[#1C1D24]" />
 
-              <ResizablePanel defaultSize={25}>
-                <div className="flex h-full items-center justify-center p-6">
-                  <span className="font-semibold">Three</span>
-                </div>
+              <ResizablePanel
+                defaultSize={25}
+                className="max-h-[30rem] min-h-[1rem] flex justify-center"
+              >
+                {codeOutput === "Run the code to see the output" && (
+                  <div className="mt-[3.5rem] bg-[#323131] h-[2.2rem] px-4 py-1 rounded-[0.3rem] font-bold text-[#8a8989]">
+                    {codeOutput}
+                  </div>
+                )}
+                {codeOutput !== "Run the code to see the output" && (
+                  <div className="text-white bg-whit w-full px-4 py-2 flex flex-col">
+                    <div className="bg-[#3a3939] px-2 py-1 rounded-[0.3rem] font-semibold">
+                      OUTPUT
+                    </div>
+                    <p
+                      className={`mt-2 ml-1 ${
+                        isError ? "text-red-600" : "text-white"
+                      }`}
+                    >
+                      {codeOutput}
+                    </p>
+                  </div>
+                )}
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
