@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MainNavbar from "./MainNavbar";
 import MainFooter from "./MainFooter";
 import {
@@ -76,6 +76,7 @@ function Editor() {
     cpp: "cpp",
     java: "java",
   };
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -91,9 +92,9 @@ function Editor() {
         });
       })
       .catch((e) => {
-        console.log(e);
+        if (e.response.status===401) navigate("/");
       });
-  }, [BACKEND_URL, projectId]);
+  }, [BACKEND_URL, navigate, projectId]);
 
   return (
     <div className="flex flex-col bg-[#0F0F10] min-h-screen overflow-hidden">
@@ -198,6 +199,7 @@ function Editor() {
                             editorRef.current.setValue("");
                           } catch (e) {
                             console.log(e);
+                            if (e.response.status===401) navigate("/");
                           }
                         }}
                       >
@@ -383,6 +385,7 @@ function Editor() {
                                   setIsFileExist(true);
                                 } catch (e) {
                                   console.log(e);
+                                  if (e.response.status===401) navigate("/");
                                 }
                               }}
                             >
@@ -467,6 +470,7 @@ function Editor() {
                               });
                             } catch (e) {
                               console.log(e);
+                              if (e.response.status===401) navigate("/");
                             }
                           }}
                         >
@@ -525,6 +529,7 @@ function Editor() {
                         }
                       } catch (e) {
                         console.log(e);
+                        if (e.response.status===401) navigate("/");
                       }
                       setIsCodeRunning(false);
                     }}
@@ -569,12 +574,12 @@ function Editor() {
                       editor.updateOptions({
                         mouseWheelZoom: true,
                         automaticLayout: true,
-                        quickSuggestions: true, 
-                        suggestOnTriggerCharacters: true, 
+                        quickSuggestions: true,
+                        suggestOnTriggerCharacters: true,
                         acceptSuggestionOnEnter: "on",
-                        wordBasedSuggestions: "currentDocument", 
+                        wordBasedSuggestions: "currentDocument",
                         snippetSuggestions: "inline",
-                        fontSize:24
+                        fontSize: 24,
                       });
                       editorRef.current = editor;
                       editor.setValue(editorValue);
@@ -597,6 +602,7 @@ function Editor() {
                           });
                         } catch (e) {
                           console.log(e);
+                          if (e.response.status===401) navigate("/");
                         }
                       });
                     }}

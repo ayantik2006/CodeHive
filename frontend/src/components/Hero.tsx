@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { MagicCard } from "./ui/magic-card.tsx";
 
 function Hero() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -74,7 +75,7 @@ function Hero() {
       </div>
 
       <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[-1rem] items-center justify-center mb-5">
-        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
+        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300 animate-shine" >
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <Radio size={30} className="text-[#6c41d0]" />
             Real Time

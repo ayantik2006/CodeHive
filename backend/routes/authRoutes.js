@@ -5,8 +5,9 @@ import {
   emailVerification,
   user,
   logout,
-  userInfo
+  userInfo,
 } from "../controllers/authControllers.js";
+import { checkLogin } from "../middlewares/checkLogin.js";
 const router = express.Router();
 
 router.post("/user", user);

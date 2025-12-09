@@ -43,6 +43,10 @@ import { Spinner } from "./ui/spinner";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { format } from "timeago.js";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { AnimatedGradientText } from "./ui/animated-gradient-text";
+import { PulsatingButton } from "./ui/pulsating-button";
+import { ShimmerButton } from "./ui/shimmer-button";
+import { ShineBorder } from "./ui/shine-border";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -136,7 +140,9 @@ function Dashboard() {
             <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex text-shadow-[0_0_px]">
               Welcome back,&nbsp;{" "}
               <p className="bg-gradient-to-r from-[#7233e7] to-[#8d66d5] bg-clip-text text-transparent">
-                {userData?.name?.split(" ")[0] || ""}{" "}
+                <AnimatedGradientText>
+                  {userData?.name?.split(" ")[0] || ""}{" "}
+                </AnimatedGradientText>
               </p>
               👋
             </h1>
@@ -152,9 +158,9 @@ function Dashboard() {
             }}
           >
             <DialogTrigger>
-              <button className="bg-[#4E29A4] font-bold text-white px-8 py-2 rounded-[0.7rem] m-8 [@media(max-width:1013px)]:hidden duration-300 cursor-pointer hover:bg-[#3a1e7a]">
+              <ShimmerButton className="font-bold text-white px-8 py-2 m-8 [@media(max-width:1013px)]:hidden duration-300 cursor-pointer"  background="#4E29A4" shimmerSize="0.2rem">
                 Create New Project
-              </button>
+              </ShimmerButton>
             </DialogTrigger>
             <DialogContent className="border-[#1C1D24] border-1 bg-[#0c0e15] text-white">
               <DialogHeader>
@@ -857,6 +863,7 @@ function Dashboard() {
                   </Dialog>
                 </div>
               )}
+
               <div className="flex flex-wrap flex-1 gap-2 w-full px-4">
                 {userProjects.length !== 0 &&
                   userProjects.map((project, index) => {
@@ -865,6 +872,7 @@ function Dashboard() {
                         className="w-fit h-fit p-4 bg-[#15151e] rounded-[0.3rem] border-2 border-[#222231] hover:scale-[1.01] duration-100"
                         key={project._id}
                       >
+
                         <h2 className="font-semibold">{project.name}</h2>
                         <div className="flex items-center">
                           <Badge className="bg-[#3C210E] text-[#E29017] mt-2">
