@@ -113,7 +113,7 @@ function Dashboard() {
         }}
       />
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between [@media(max-width:1013px)]:justify-center bg-gradient-to-b from-[#f5f3f307] to-transparent bg-[url('../../grid.svg')] opacity-[5]">
+        <div className="flex [@media(max-width:1013px)]:flex-col items-center justify-between [@media(max-width:1013px)]:justify-center bg-gradient-to-b from-[#f5f3f307] to-transparent bg-[url('../../grid.svg')] opacity-[5]">
           <div className="m-8 flex flex-col [@media(max-width:1013px)]:items-center [@media(max-width:1013px)]:text-center">
             <div className="flex flex-wrap gap-2 items-center">
               <Badge
@@ -159,7 +159,7 @@ function Dashboard() {
             }}
           >
             <DialogTrigger>
-              <ShimmerButton className="font-bold text-white px-8 py-2 m-8 [@media(max-width:1013px)]:hidden duration-300 cursor-pointer"  background="#4E29A4" shimmerSize="0.2rem">
+              <ShimmerButton className="font-bold text-white px-8 py-2 m-8  duration-300 cursor-pointer"  background="#4E29A4" shimmerSize="0.2rem">
                 Create New Project
               </ShimmerButton>
             </DialogTrigger>
