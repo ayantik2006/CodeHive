@@ -197,7 +197,10 @@ function Editor() {
                               fileName +
                                 languageExtension[projectDetails.language]
                             );
-                            // editorRef.current.setValue("");
+                            selectedFileRef.current =
+                              fileName +
+                              languageExtension[projectDetails.language];
+                            editorRef.current.setValue("");
                           } catch (e) {
                             console.log(e);
                             if (e.response.status === 401) navigate("/");
@@ -449,13 +452,13 @@ function Editor() {
                                 </DialogClose>
                                 <Button
                                   type="submit"
-                                  className={`bg-[#4E29A4] hover:bg-[#43238d] cursor-pointer px-5 ${
+                                  className={`bg-[#4E29A4] hover:bg-[#43238d] cursor-pointer px-4 ${
                                     IsFileExist
                                       ? "bg-gray-500 pointer-events-none"
                                       : ""
                                   }`}
                                 >
-                                  Create
+                                  Rename
                                 </Button>
                               </DialogFooter>
                             </form>
@@ -464,6 +467,9 @@ function Editor() {
                         <ContextMenuItem
                           className="text-[#D65658] hover:bg-[#0C0E15] cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-[#c85153]"
                           onClick={async () => {
+                            if(file.name===selectedFileRef.current){
+                              selectedFileRef.current=null;
+                            }
                             try {
                               const response = await axios.post(
                                 BACKEND_URL + "/project/delete-file",
@@ -571,7 +577,7 @@ function Editor() {
                 </div>
               )}
               <ResizablePanel defaultSize={75} className="flex flex-col">
-                {selectedFile !== null && (
+                {selectedFileRef.current !== null && (
                   <MonacoEditor
                     height="90vh"
                     language={languageName[projectDetails.language]}
