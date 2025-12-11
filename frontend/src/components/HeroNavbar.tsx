@@ -6,8 +6,8 @@ function HeroNavbar() {
   return (
     <>
       <div className="text-white flex bg-[bg-[#0F0F10]] py-3 px-5 border-b-1 border-[#18191A] justify-between items-center [@media(max-width:1449px)]:hidden sticky bg-[#0f0f10] top-0">
-        <div className="font-bold text-[1.4rem] ">CodeHive</div>
-        <div className="flex gap-5 text-[rgb(192,192,194)]">
+        <div className="font-bold text-[1.4rem] pl-[16rem] ">CodeHive</div>
+        <div className="flex gap-8 text-[rgb(192,192,194)] ml-[9rem]">
           <Link to="/">
             <div className="hover:white duration-300 cursor-pointer">
               Product
@@ -23,7 +23,7 @@ function HeroNavbar() {
             Blog
           </div>
         </div>
-        <div className="flex gap-4 text-[0.9rem]">
+        <div className="flex gap-4 text-[0.9rem] mr-[15rem]">
           <button className="bg-[#15151a] border-2 border-[#1E1F20] px-4 py-2 rounded-[0.6rem] cursor-pointer">
             Try Demo
           </button>

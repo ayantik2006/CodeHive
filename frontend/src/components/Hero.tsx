@@ -33,8 +33,8 @@ function Hero() {
     <div className="min-h-screen bg-[#0F0F10] flex flex-col gap-5 [@media(max-width:1449px)]:items-center bg-[url('../../grid.svg')]">
       <HeroNavbar />
 
-      <div className="flex flex-wrap px-[13rem] [@media(max-width:786px)]:px-2 [@media(max-width:786px)]:px-2 justify-between items-center py-[2rem]">
-        <div className="flex flex-col gap-4 [@media(max-width:1449px)]:items-center">
+      <div className="flex flex-wrap px-[18rem [@media(max-width:786px)]:px-2 [@media(max-width:786px)]:px-2 justify-center items-center py-[2rem]">
+        <div className="flex flex-col gap-6 [@media(max-width:1449px)]:items-center">
           <div className="ml-1 mb-[-1rem] flex gap-2 self-center">
             <Badge variant="secondary" className="bg-[#262626] text-white">
               Built for teams
@@ -46,7 +46,7 @@ function Hero() {
               hack nights
             </Badge>
           </div>
-          <p className="text-white text-[4rem] font-bold text-center [@media(max-width:785px)]:text-[3rem]">
+          <p className="text-[#e0e0e0] text-[3rem] font-bold text-center [@media(max-width:785px)]:text-[3rem] mt-3">
             Code. Collaborate. <br />
             Create. Together
           </p>
@@ -68,14 +68,14 @@ function Hero() {
             </Link>
           </div>
         </div>
-        <img
+        {/* <img
           src={heroEditor}
-          className="w-[30rem] [@media(max-width:1449px)]:hidden"
-        />
+          className="w-[27rem] [@media(max-width:1449px)]:hidden"
+        /> */}
       </div>
 
-      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[-1rem] items-center justify-center mb-5">
-        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300 animate-shine" >
+      <div className="flex flex-wrap gap-5 px-[13rem] [@media(max-width:948px)]:px-2 mt-[1.5rem] items-center justify-center mb-5">
+        <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300 animate-shine" >
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <Radio size={30} className="text-[#6c41d0]" />
             Real Time
@@ -84,7 +84,7 @@ function Hero() {
             Code together with your team in real-time
           </p>
         </div>
-        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
+        <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <UsersRound size={30} className="text-[#6c41d0] fill-[#6c41d0]" />
             Shared cursors
@@ -93,7 +93,7 @@ function Hero() {
             See where others are working in the editor
           </p>
         </div>
-        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
+        <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <MessageCircle
               size={30}
@@ -105,7 +105,7 @@ function Hero() {
             Chat with your collaborators instantly
           </p>
         </div>
-        <div className="w-[16rem] h-[12rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
+        <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <CloudUpload
               size={30}

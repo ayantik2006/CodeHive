@@ -20,6 +20,7 @@
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
     "axois": "^0.0.1-security",
@@ -36,7 +37,10 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.17",
     "timeago.js": "^4.0.2",
-    "valid-filename": "^4.0.0"
+    "valid-filename": "^4.0.0",
+    "y-monaco": "^0.1.6",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -57,6 +57,7 @@ function Editor() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [IsFileExist, setIsFileExist] = useState(false);
   const editorRef = useRef(null);
+  const selectedFileRef = useRef(null);
   const [isCodeRunning, setIsCodeRunning] = useState(false);
   const [codeOutput, setCodeOutput] = useState(
     "Run the code to see the output"
@@ -92,9 +93,9 @@ function Editor() {
         });
       })
       .catch((e) => {
-        if (e.response.status===401) navigate("/");
+        if (e.response.status === 401) navigate("/");
       });
-  }, [BACKEND_URL, navigate, projectId]);
+  }, [BACKEND_URL, navigate, projectId, selectedFile]);
 
   return (
     <div className="flex flex-col bg-[#0F0F10] min-h-screen overflow-hidden">
@@ -196,10 +197,10 @@ function Editor() {
                               fileName +
                                 languageExtension[projectDetails.language]
                             );
-                            editorRef.current.setValue("");
+                            // editorRef.current.setValue("");
                           } catch (e) {
                             console.log(e);
-                            if (e.response.status===401) navigate("/");
+                            if (e.response.status === 401) navigate("/");
                           }
                         }}
                       >
@@ -299,10 +300,16 @@ function Editor() {
                               : ""
                           }`}
                           key={index}
-                          onClick={() => {
-                            setSelectedFile(file.name);
-                            setEditorValue(file.content);
-                            editorRef.current.setValue(file.content);
+                          onClick={(e) => {
+                            //fuck
+                            setSelectedFile(file.name); // UI state
+                            selectedFileRef.current = file.name; // imperative handlers read this
+                            if (editorRef.current) {
+                              editorRef.current.setValue(file.content);
+                            } else {
+                              // optional: stash content in state like pendingEditorValue and apply on mount
+                              setEditorValue(file.content);
+                            }
                           }}
                         >
                           <div className="mr-1 bg-[#3C210E] text-[#E27311] rounded-[0.2rem] px-1 font-bold">
@@ -385,7 +392,7 @@ function Editor() {
                                   setIsFileExist(true);
                                 } catch (e) {
                                   console.log(e);
-                                  if (e.response.status===401) navigate("/");
+                                  if (e.response.status === 401) navigate("/");
                                 }
                               }}
                             >
@@ -470,7 +477,7 @@ function Editor() {
                               });
                             } catch (e) {
                               console.log(e);
-                              if (e.response.status===401) navigate("/");
+                              if (e.response.status === 401) navigate("/");
                             }
                           }}
                         >
@@ -529,7 +536,7 @@ function Editor() {
                         }
                       } catch (e) {
                         console.log(e);
-                        if (e.response.status===401) navigate("/");
+                        if (e.response.status === 401) navigate("/");
                       }
                       setIsCodeRunning(false);
                     }}
@@ -569,6 +576,7 @@ function Editor() {
                     height="90vh"
                     language={languageName[projectDetails.language]}
                     theme="vs-dark"
+                    onChange={async (e) => {}}
                     onMount={(editor, monaco) => {
                       editor.updateOptions({ tabSize: 4 });
                       editor.updateOptions({
@@ -579,19 +587,22 @@ function Editor() {
                         acceptSuggestionOnEnter: "on",
                         wordBasedSuggestions: "currentDocument",
                         snippetSuggestions: "inline",
-                        fontSize: 24,
+                        fontSize: 16,
                       });
-                      editorRef.current = editor;
                       editor.setValue(editorValue);
+                      editorRef.current = editor;
                       editor.onKeyUp(async (e) => {
-                        const code = editor.getValue();
+                        const code = editorRef.current?.getValue();
+                        const fileName = selectedFileRef.current;
+
+                        console.log(fileName);
                         try {
                           const res = await axios.post(
                             BACKEND_URL + "/project/save-file",
                             {
                               code: code,
                               projectId: projectId,
-                              fileName: selectedFile,
+                              fileName: fileName,
                             },
                             { withCredentials: true }
                           );
@@ -602,7 +613,7 @@ function Editor() {
                           });
                         } catch (e) {
                           console.log(e);
-                          if (e.response.status===401) navigate("/");
+                          if (e.response.status === 401) navigate("/");
                         }
                       });
                     }}

@@ -14,6 +14,7 @@ import {
   GlobeLock,
   Plus,
   Radio,
+  Share2,
   Terminal,
   UsersRound,
 } from "lucide-react";
@@ -137,7 +138,7 @@ function Dashboard() {
                 AI assisted coding
               </Badge>
             </div>
-            <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex text-shadow-[0_0_px]">
+            <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex text-shadow-[0_0_px] mt-2">
               Welcome back,&nbsp;{" "}
               <p className="bg-gradient-to-r from-[#7233e7] to-[#8d66d5] bg-clip-text text-transparent">
                 <AnimatedGradientText>
@@ -146,7 +147,7 @@ function Dashboard() {
               </p>
               👋
             </h1>
-            <p className="text-gray-300 text-[1.1rem] [@media(max-width:631px)]:text-[1rem]">
+            <p className="text-gray-300 text-[1.1rem] [@media(max-width:631px)]:text-[1rem] mt-2 mb-[-1rem]">
               Continue where you left off, Build, Edit and Collaborate instantly
             </p>
           </div>
@@ -368,246 +369,7 @@ function Dashboard() {
             </DialogContent>
           </Dialog>
         </div>
-        <div className="flex gap-8 flex-wrap mx-8 [@media(max-width:928px)]:justify-center mb-5 mt-[-0.8rem]">
-          <Dialog
-            onOpenChange={(e) => {
-              if (e) {
-                setIsProjectNameAvailable(true);
-              }
-            }}
-          >
-            <DialogTrigger>
-              <div className="w-[13rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2   hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-                <FolderPlus className="stroke-[#4E29A4]" size={"22px"} />
-                <p className="text-[#acabab] text-[1rem] font-semibold">
-                  Create New Project
-                </p>
-              </div>
-            </DialogTrigger>
-            <DialogContent className="border-[#1C1D24] border-1 bg-[#0c0e15] text-white">
-              <DialogHeader>
-                <DialogTitle className="text-white">
-                  Create a new Project
-                </DialogTitle>
-                <DialogDescription>
-                  Give a few details about the project and click on create to
-                  continue
-                </DialogDescription>
-              </DialogHeader>
-              <form
-                className="flex flex-col gap-3"
-                onSubmit={async (e) => {
-                  setIsLoading(true);
-                  setIsProjectNameAvailable(false);
-                  e.preventDefault();
-                  try {
-                    const res = await axios.post(
-                      BACKEND_URL + "/project/create-project",
-                      {
-                        projectName: e.currentTarget[0].value,
-                        language: e.currentTarget[2].value,
-                        visibility: e.currentTarget.visibility.value,
-                      },
-                      { withCredentials: true }
-                    );
-                    setIsLoading(false);
-                    toast("Project created!");
-                    try {
-                      axios
-                        .post(
-                          BACKEND_URL + "/project/get-projects",
-                          {},
-                          { withCredentials: true }
-                        )
-                        .then((res) => {
-                          setUserProjects(res.data.projects.reverse());
-                        });
-                    } catch (e) {
-                      console.log(e);
-                    }
-                  } catch (e) {
-                    console.log(e);
-                  }
-                }}
-              >
-                <label htmlFor="project-name" className="flex">
-                  Project name{" "}
-                  <p className="text-[#653fbd] font-bold text-[1.2rem]">
-                    &nbsp;*
-                  </p>
-                </label>
-                <Input
-                  type="name"
-                  placeholder="Name of project"
-                  id="project-name"
-                  required
-                  onInput={(e) => {
-                    let projectName = e.currentTarget.value;
-                    projectName = projectName.toLowerCase().trim();
-                    for (let project of userProjects) {
-                      if (projectName === project.name.toLowerCase().trim()) {
-                        setIsProjectNameAvailable(false);
-                        break;
-                      } else setIsProjectNameAvailable(true);
-                    }
-                  }}
-                />
-                {!isProjectNameAvailable && (
-                  <Alert
-                    variant="destructive"
-                    className="bg-transparent p-0 border-0"
-                  >
-                    <AlertDescription className="flex items-center">
-                      <CircleAlert size={17} className="mt-[0.1rem]" />
-                      <p className="font-semibold">
-                        Project with this name already exists
-                      </p>
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <label htmlFor="" className="flex">
-                  Language Support
-                  <p className="text-[#653fbd] font-bold text-[1.2rem]">
-                    &nbsp;*
-                  </p>
-                </label>
-                <Select required>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select Language" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#0C0E15] text-white">
-                    <SelectGroup>
-                      <SelectItem
-                        value="java"
-                        className="bg-[#0C0E15] text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white cursor-pointer"
-                        color="black"
-                      >
-                        Java
-                      </SelectItem>
-                      <SelectItem
-                        value="cpp"
-                        className="bg-[#0C0E15] text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white cursor-pointer"
-                        color="black"
-                      >
-                        C++
-                      </SelectItem>
-                      <SelectItem
-                        value="python"
-                        className="bg-[#0C0E15] text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white cursor-pointer"
-                        color="black"
-                      >
-                        Python
-                      </SelectItem>
-                      <SelectItem
-                        value="nodejs"
-                        className="bg-[#0C0E15] text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white cursor-pointer"
-                        color="black"
-                      >
-                        JavaScript (Node)
-                      </SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <label>Visibility</label>
-                <div className="flex gap-2 h-[2.6rem]">
-                  <div className="bg-[#241840] border-1 border-[#653FBD] flex-1 rounded-[0.4rem] flex flex-col items-center">
-                    <div className="flex mx-2 my-2 gap-2 cursor-pointer self-start items-center justify-center">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        id="public-visibility"
-                        value={"public"}
-                        className="mt-[0.07rem] accent-[#54359B] size-[1rem]"
-                        defaultChecked
-                      />
-                      <label
-                        htmlFor="public-visibility"
-                        className="cursor-pointer font-semibold text-gray-400 flex gap-1 items-center"
-                      >
-                        Public
-                      </label>
-                    </div>
-                  </div>
-                  <div className="bg-[#241840] border-1 border-[#653FBD] flex-2 rounded-[0.4rem]">
-                    <div className="flex mx-2 my-2 gap-2 items-center cursor-pointer self-start">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        id="collab-visibility"
-                        value={"collab"}
-                        className="mt-[0.07rem] accent-[#54359B] size-[1rem]"
-                      />
-                      <label
-                        htmlFor="collab-visibility"
-                        className="cursor-pointer font-semibold text-gray-400 flex gap-1 justify-between"
-                      >
-                        <p>Collaborators only</p>
-                      </label>
-                    </div>
-                  </div>
-                  <div className="bg-[#241840] border-1 border-[#653FBD] flex-1 rounded-[0.4rem]">
-                    <div className="flex mx-2 my-2 gap-2 items-center cursor-pointer self-start">
-                      <input
-                        type="radio"
-                        name="visibility"
-                        id="private-visibility"
-                        value={"private"}
-                        className="mt-[0.07rem] accent-[#54359B] size-[1rem]"
-                      />
-                      <label
-                        htmlFor="private-visibility"
-                        className="cursor-pointer font-semibold text-gray-400 flex gap-1"
-                      >
-                        Private
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-row-reverse gap-2">
-                  <button
-                    className={`bg-[#513396] px-3 py-1 rounded-[0.3rem] cursor-pointer hover:bg-[#432b7c] duration-300 flex items-center gap-2 ${
-                      isLoading ? "bg-gray-600" : ""
-                    } ${isLoading ? "pointer-events-none" : ""} ${
-                      isProjectNameAvailable
-                        ? ""
-                        : "pointer-events-none bg-gray-500"
-                    }`}
-                    type="submit"
-                  >
-                    {isLoading && <Spinner />}{" "}
-                    <p>{isLoading ? "Creating..." : "Create"}</p>
-                  </button>
-                  <DialogClose asChild>
-                    <button
-                      className="bg-[#17171d] border-1 border-[#272831] px-3 py-1 rounded-[0.3rem] cursor-pointer hover:bg-[#272831] duration-300"
-                      type="button"
-                    >
-                      Cancel
-                    </button>
-                  </DialogClose>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-          <div className="w-[13.5rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2  hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-            <Github className="stroke-[#ffffff] fill-black" size={"21px"} />
-            <p className="text-[#acabab] text-[1rem] font-semibold">
-              Import from GitHub
-            </p>
-          </div>
-          <div className="w-[12.5rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2  hover:shadow-[0_0_10px_#4E29A4] duration-300 cursor-pointer hover:-translate-y-[0.1rem] transition-all">
-            <UsersRound className="stroke-[#4E29A4]" size={"22px"} />
-            <p className="text-[#acabab] text-[1rem] font-semibold">
-              Create New Team
-            </p>
-          </div>
-          <div className="w-[9rem] h-[3rem] bg-[#0D0D13] border-[#18191F] border-2 rounded-xl flex items-center justify-center gap-2 duration-300 cursor-pointer hover:shadow-[0_0_10px_#4E29A4] hover:-translate-y-[0.1rem] transition-all">
-            <FileText className="stroke-[#4E29A4]" size={"21px"} />
-            <p className="text-[#acabab] text-[1rem] font-semibold [@media(max-width:632px)]:text-[1rem] ">
-              View Docs
-            </p>
-          </div>
-        </div>
+        
         <div className="flex-1 flex text-white mx-8 ">
           <div
             className="min-h-full w-full rounded-lg border-1 border-[#1C1D24] mb-2 shadow-[inset_0_0_40px_rgba(255,255,255,0.02)]
@@ -631,7 +393,7 @@ function Dashboard() {
               className="m-2 flex flex-col items-center"
             >
               <h1 className="text-white text-[1.3rem] font-bold mt-[0.6rem] text-center mb-4">
-                Your Projects
+                My Projects
               </h1>
               {userProjects.length === 0 && (
                 <div className="mt-4 flex flex-col items-center">
