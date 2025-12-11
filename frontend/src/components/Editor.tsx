@@ -469,6 +469,7 @@ function Editor() {
                           onClick={async () => {
                             if(file.name===selectedFileRef.current){
                               selectedFileRef.current=null;
+                              setSelectedFile(null);
                             }
                             try {
                               const response = await axios.post(
