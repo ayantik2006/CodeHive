@@ -36,6 +36,11 @@ import isValidFilename from "valid-filename";
 import MonacoEditor from "@monaco-editor/react";
 import selectToStart from "../assets/selectToStart.png";
 
+import * as Y from "yjs";
+import { WebrtcProvider } from "y-webrtc";
+import { MonacoBinding } from "y-monaco";
+import { io } from "socket.io-client";
+
 function cleanError(stderr) {
   const firstLine = stderr
     .split("\n")
@@ -58,6 +63,7 @@ function Editor() {
   const [IsFileExist, setIsFileExist] = useState(false);
   const editorRef = useRef(null);
   const selectedFileRef = useRef(null);
+  const yRef = useRef(null);
   const [isCodeRunning, setIsCodeRunning] = useState(false);
   const [codeOutput, setCodeOutput] = useState(
     "Run the code to see the output"
@@ -96,6 +102,19 @@ function Editor() {
         if (e.response.status === 401) navigate("/");
       });
   }, [BACKEND_URL, navigate, projectId, selectedFile]);
+
+  //socket coonect
+  const socket = io(BACKEND_URL);
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("socket connected: ", socket.id);
+    });
+
+    socket.on("updated files",(data)=>{
+      setProjectDetails({...data.projectDetails,files:data.projectDetails.files.reverse()});
+      console.log(data);
+    });
+  }, [BACKEND_URL, socket]);
 
   return (
     <div className="flex flex-col bg-[#0F0F10] min-h-screen overflow-hidden">
@@ -305,20 +324,54 @@ function Editor() {
                           key={index}
                           onClick={(e) => {
                             //fuck
-                            setSelectedFile(file.name); // UI state
-                            selectedFileRef.current = file.name; // imperative handlers read this
-                            if (editorRef.current) {
-                              editorRef.current.setValue(file.content);
-                            } else {
-                              // optional: stash content in state like pendingEditorValue and apply on mount
-                              setEditorValue(file.content);
-                            }
+                            yRef.current.ydoc.destroy();
+                            yRef.current.provider.destroy();
+                            yRef.current.binding.destroy();
+                            yRef.current.ydoc = new Y.Doc();
+                            yRef.current.provider = new WebrtcProvider(
+                              `${file.name}`,
+                              yRef.current.ydoc
+                            );
+                            yRef.current.type =
+                              yRef.current.ydoc.getText("monaco");
+                            const monacoBinding = new MonacoBinding(
+                              yRef.current.type,
+                              editorRef.current.getModel(),
+                              new Set([editorRef.current]),
+                              yRef.current.provider.awareness
+                            );
+                            axios
+                              .post(
+                                BACKEND_URL + "/project/get-project-details",
+                                { id: projectId },
+                                { withCredentials: true }
+                              )
+                              .then((res) => {
+                                setProjectDetails({
+                                  ...res.data.projectDetails,
+                                  files:
+                                    res.data.projectDetails.files.reverse(),
+                                });
+                                setSelectedFile(file.name);
+                                selectedFileRef.current = file.name;
+                                if (editorRef.current) {
+                                  editorRef.current.setValue(file.content);
+                                } else {
+                                  setEditorValue(file.content);
+                                }
+                              })
+                              .catch((e) => {
+                                if (e.response.status === 401) navigate("/");
+                              });
                           }}
                         >
                           <div className="mr-1 bg-[#3C210E] text-[#E27311] rounded-[0.2rem] px-1 font-bold">
-                            {languageExtension[projectDetails.language]
-                              .toUpperCase()
-                              .slice(1)}
+                            {(projectDetails?.language
+                              ? languageExtension[projectDetails.language]
+                              : ".txt"
+                            )
+                              .slice(1)
+                              .toUpperCase()}
                           </div>
                           <p className="text-gray-300 ml-1 wrap-anywhere">
                             {file.name}
@@ -384,7 +437,9 @@ function Editor() {
                                   toast(
                                     `File "${file.name}" renamed to "${
                                       newFileName +
-                                      languageExtension[projectDetails.language]
+                                      languageExtension[
+                                        projectDetails?.language
+                                      ]
                                     }"`
                                   );
                                   setProjectDetails({
@@ -467,8 +522,8 @@ function Editor() {
                         <ContextMenuItem
                           className="text-[#D65658] hover:bg-[#0C0E15] cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-[#c85153]"
                           onClick={async () => {
-                            if(file.name===selectedFileRef.current){
-                              selectedFileRef.current=null;
+                            if (file.name === selectedFileRef.current) {
+                              // selectedFileRef.current=null;
                               setSelectedFile(null);
                             }
                             try {
@@ -578,14 +633,27 @@ function Editor() {
                 </div>
               )}
               <ResizablePanel defaultSize={75} className="flex flex-col">
-                {selectedFileRef.current !== null && (
+                {
                   <MonacoEditor
                     height="90vh"
                     language={languageName[projectDetails.language]}
                     theme="vs-dark"
                     onChange={async (e) => {}}
                     onMount={(editor, monaco) => {
-                      editor.updateOptions({ tabSize: 4 });
+                      const ydoc = new Y.Doc();
+                      const provider = new WebrtcProvider(
+                        `${selectedFile}`,
+                        ydoc
+                      );
+                      const type = ydoc.getText("monaco");
+                      const binding = new MonacoBinding(
+                        type,
+                        editor.getModel(),
+                        new Set([editor]),
+                        provider.awareness
+                      );
+                      yRef.current = { ydoc, provider, type, binding };
+
                       editor.updateOptions({
                         mouseWheelZoom: true,
                         automaticLayout: true,
@@ -595,14 +663,14 @@ function Editor() {
                         wordBasedSuggestions: "currentDocument",
                         snippetSuggestions: "inline",
                         fontSize: 16,
+                        tabSize: 4,
                       });
                       editor.setValue(editorValue);
                       editorRef.current = editor;
-                      editor.onKeyUp(async (e) => {
-                        const code = editorRef.current?.getValue();
-                        const fileName = selectedFileRef.current;
 
-                        console.log(fileName);
+                      editor.onKeyUp(async (e) => {
+                        const code = editor.getValue();
+                        const fileName = selectedFileRef.current;
                         try {
                           const res = await axios.post(
                             BACKEND_URL + "/project/save-file",
@@ -613,11 +681,11 @@ function Editor() {
                             },
                             { withCredentials: true }
                           );
-                          const files = res.data.files;
-                          setProjectDetails({
-                            ...projectDetails,
-                            files: files,
-                          });
+                          // const files = res.data.files;
+                          // // setProjectDetails({
+                          //   ...projectDetails,
+                          //   files: files,
+                          // });
                         } catch (e) {
                           console.log(e);
                           if (e.response.status === 401) navigate("/");
@@ -625,7 +693,7 @@ function Editor() {
                       });
                     }}
                   />
-                )}
+                }
               </ResizablePanel>
 
               <ResizableHandle className="bg-[#1C1D24]" />

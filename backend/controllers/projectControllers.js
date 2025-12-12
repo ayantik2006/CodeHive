@@ -124,6 +124,8 @@ export async function saveFile(req, res) {
   }
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
+  const io = req.app.get("io");
+  io.emit("updated files",{projectDetails:projectData});
   return res
     .status(200)
     .json({ msg: "file saved", files:files.reverse() });
