@@ -104,14 +104,22 @@ function Editor() {
   }, [BACKEND_URL, navigate, projectId, selectedFile]);
 
   //socket coonect
-  const socket = io(BACKEND_URL);
+  const socket = io(BACKEND_URL, {
+    transports: ["polling", "websocket"], 
+    withCredentials: true, 
+    reconnectionAttempts: 10,
+    timeout: 20000,
+  });
   useEffect(() => {
     socket.on("connect", () => {
       console.log("socket connected: ", socket.id);
     });
 
-    socket.on("updated files",(data)=>{
-      setProjectDetails({...data.projectDetails,files:data.projectDetails.files.reverse()});
+    socket.on("updated files", (data) => {
+      setProjectDetails({
+        ...data.projectDetails,
+        files: data.projectDetails.files.reverse(),
+      });
       console.log(data);
     });
   }, [BACKEND_URL, socket]);
