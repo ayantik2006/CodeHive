@@ -104,13 +104,13 @@ function Editor() {
   }, [BACKEND_URL, navigate, projectId, selectedFile]);
 
   //socket coonect
-  const socket = io(BACKEND_URL, {
-    transports: ["polling", "websocket"], 
-    withCredentials: true, 
-    reconnectionAttempts: 10,
-    timeout: 20000,
-  });
   useEffect(() => {
+    const socket = io(BACKEND_URL, {
+      transports: ["polling", "websocket"],
+      withCredentials: true,
+      reconnectionAttempts: 10,
+      timeout: 20000,
+    });
     socket.on("connect", () => {
       console.log("socket connected: ", socket.id);
     });
@@ -122,7 +122,7 @@ function Editor() {
       });
       console.log(data);
     });
-  }, [BACKEND_URL, socket]);
+  }, [BACKEND_URL]);
 
   return (
     <div className="flex flex-col bg-[#0F0F10] min-h-screen overflow-hidden">
@@ -651,7 +651,25 @@ function Editor() {
                       const ydoc = new Y.Doc();
                       const provider = new WebrtcProvider(
                         `${selectedFile}`,
-                        ydoc
+                        ydoc,
+                        {
+                          // signaling: [
+                          //   "wss://your-signaling-server.example.com",
+                          // ], // optional
+                          peerOpts: {
+                            config: {
+                              iceServers: [
+                                { urls: "stun:stun.l.google.com:19302" },
+                                { urls: "stun:stun1.l.google.com:19302" },
+                                {
+                                  urls: "turn:YOUR_TURN_SERVER:3478?transport=tcp",
+                                  username: "turnuser",
+                                  credential: "turnpass",
+                                },
+                              ],
+                            },
+                          },
+                        }
                       );
                       const type = ydoc.getText("monaco");
                       const binding = new MonacoBinding(
