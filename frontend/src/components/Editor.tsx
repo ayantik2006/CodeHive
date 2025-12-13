@@ -333,6 +333,8 @@ function Editor() {
                           key={index}
                           onClick={(e) => {
                             //fuck
+                            localStorage.clear()
+                            console.log(localStorage);
                             yRef.current.ydoc.destroy();
                             yRef.current.provider.destroy();
                             yRef.current.binding.destroy();
