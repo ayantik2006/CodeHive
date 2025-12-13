@@ -118,6 +118,11 @@ function Editor() {
     });
 
     socket.on("updated files", (data) => {
+      if (data.deletedFile) {
+        if (data.deletedFile === selectedFileRef.current) {
+          setSelectedFile(null);
+        }
+      }
       setProjectDetails({
         ...data.projectDetails,
         files: data.projectDetails.files.reverse(),
@@ -209,11 +214,11 @@ function Editor() {
                               },
                               { withCredentials: true }
                             );
-                            setProjectDetails({
-                              ...response.data.projectDetails,
-                              files:
-                                response.data.projectDetails.files.reverse(),
-                            });
+                            // setProjectDetails({
+                            //   ...response.data.projectDetails,
+                            //   files:
+                            //     response.data.projectDetails.files.reverse(),
+                            // });
                             toast(
                               `File "${
                                 fileName +
@@ -221,14 +226,14 @@ function Editor() {
                               }" created`
                             );
                             setIsFileExist(true);
-                            setSelectedFile(
-                              fileName +
-                                languageExtension[projectDetails.language]
-                            );
-                            selectedFileRef.current =
-                              fileName +
-                              languageExtension[projectDetails.language];
-                            editorRef.current.setValue("");
+                            // setSelectedFile(
+                            //   fileName +
+                            //     languageExtension[projectDetails.language]
+                            // );
+                            // selectedFileRef.current =
+                            //   fileName +
+                            //   languageExtension[projectDetails.language];
+                            // editorRef.current.setValue("");
                           } catch (e) {
                             console.log(e);
                             if (e.response.status === 401) navigate("/");
@@ -333,11 +338,10 @@ function Editor() {
                           key={index}
                           onClick={(e) => {
                             //fuck
-                            localStorage.clear()
-                            console.log(localStorage);
-                            yRef.current.ydoc.destroy();
-                            yRef.current.provider.destroy();
-                            yRef.current.binding.destroy();
+                            if (yRef.current) {
+                              yRef.current.ydoc.destroy();
+                              yRef.current.provider.destroy();
+                            }
                             yRef.current.ydoc = new Y.Doc();
                             // yRef.current.provider = new WebrtcProvider(
                             //   `${file.name}`,
@@ -659,30 +663,32 @@ function Editor() {
                     onMount={(editor, monaco) => {
                       monacoRef.current = monaco;
                       const ydoc = new Y.Doc();
-                      // const provider = new WebrtcProvider(
-                      //   `${selectedFile}`,
-                      //   ydoc,
-                      //   {
-                      //     peerOpts: {
-                      //       config: {
-                      //         iceServers: [
-                      //           { urls: "stun:stun.l.google.com:19302" },
-                      //           { urls: "stun:stun1.l.google.com:19302" },
-                      //           {
-                      //             urls: "turn:YOUR_TURN_SERVER:3478?transport=tcp",
-                      //             username: "turnuser",
-                      //             credential: "turnpass",
-                      //           },
-                      //         ],
-                      //       },
-                      //     },
-                      //   }
-                      // );
                       const provider = new WebsocketProvider(
                         import.meta.env.VITE_YWS_URL,
                         `${projectId}:${selectedFile}`,
                         ydoc
                       );
+                      provider.awareness.on("change", () => {
+                        const states = Array.from(
+                          provider.awareness.getStates().values()
+                        );
+
+                        states.forEach((state) => {
+                          if (!state.user) return;
+
+                          console.log(
+                            state.user.name,
+                            state.user.color,
+                            state.cursor
+                          );
+                        });
+                      });
+
+                      provider.awareness.setLocalStateField("user", {
+                        name: "Ayantik",
+                        color: "#ff4d4f",
+                      });
+
                       const type = ydoc.getText("monaco");
                       const binding = new MonacoBinding(
                         type,

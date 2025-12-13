@@ -46,13 +46,14 @@ export async function getProjectDetails(req, res) {
 export async function createFile(req, res) {
   const { projectId, fileName } = req.body;
   // console.log(req.body);
-  const projectData = await Project.findOne({ _id: projectId });
+  let projectData = await Project.findOne({ _id: projectId });
   const files = projectData.files;
   files.push({
     name: fileName,
     content: "",
   });
   await Project.updateOne({ _id: projectId }, { files: files });
+  projectData = await Project.findOne({ _id: projectId });
   const io = req.app.get("io");
   io.emit("updated files",{projectDetails:projectData});
   res
@@ -73,7 +74,7 @@ export async function deleteFile(req, res) {
   await Project.updateOne({ _id: id }, { files: newFiles });
   projectData = await Project.findOne({ _id: id });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData});
+  io.emit("updated files",{projectDetails:projectData,deletedFile:fileName});
   return res
     .status(200)
     .json({ msg: "file deleted", projectDetails: projectData });
