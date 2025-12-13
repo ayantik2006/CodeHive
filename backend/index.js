@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import connectMongodb from "./config/db.js";
 import cookieParser from "cookie-parser";
+import { createRequire } from "module";
 
 dotenv.config();
 

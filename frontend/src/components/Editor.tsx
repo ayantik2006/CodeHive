@@ -37,7 +37,8 @@ import MonacoEditor from "@monaco-editor/react";
 import selectToStart from "../assets/selectToStart.png";
 
 import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
+// import { WebrtcProvider } from "y-webrtc";
+import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
 import { io } from "socket.io-client";
 
@@ -62,6 +63,7 @@ function Editor() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const [IsFileExist, setIsFileExist] = useState(false);
   const editorRef = useRef(null);
+  const monacoRef = useRef(null);
   const selectedFileRef = useRef(null);
   const yRef = useRef(null);
   const [isCodeRunning, setIsCodeRunning] = useState(false);
@@ -120,7 +122,6 @@ function Editor() {
         ...data.projectDetails,
         files: data.projectDetails.files.reverse(),
       });
-      console.log(data);
     });
   }, [BACKEND_URL]);
 
@@ -336,8 +337,13 @@ function Editor() {
                             yRef.current.provider.destroy();
                             yRef.current.binding.destroy();
                             yRef.current.ydoc = new Y.Doc();
-                            yRef.current.provider = new WebrtcProvider(
-                              `${file.name}`,
+                            // yRef.current.provider = new WebrtcProvider(
+                            //   `${file.name}`,
+                            //   yRef.current.ydoc
+                            // );
+                            yRef.current.provider = new WebsocketProvider(
+                              import.meta.env.VITE_YWS_URL,
+                              `${projectId}:${file.name}`,
                               yRef.current.ydoc
                             );
                             yRef.current.type =
@@ -348,6 +354,7 @@ function Editor() {
                               new Set([editorRef.current]),
                               yRef.current.provider.awareness
                             );
+
                             axios
                               .post(
                                 BACKEND_URL + "/project/get-project-details",
@@ -648,28 +655,31 @@ function Editor() {
                     theme="vs-dark"
                     onChange={async (e) => {}}
                     onMount={(editor, monaco) => {
+                      monacoRef.current = monaco;
                       const ydoc = new Y.Doc();
-                      const provider = new WebrtcProvider(
-                        `${selectedFile}`,
-                        ydoc,
-                        {
-                          // signaling: [
-                          //   "wss://your-signaling-server.example.com",
-                          // ], // optional
-                          peerOpts: {
-                            config: {
-                              iceServers: [
-                                { urls: "stun:stun.l.google.com:19302" },
-                                { urls: "stun:stun1.l.google.com:19302" },
-                                {
-                                  urls: "turn:YOUR_TURN_SERVER:3478?transport=tcp",
-                                  username: "turnuser",
-                                  credential: "turnpass",
-                                },
-                              ],
-                            },
-                          },
-                        }
+                      // const provider = new WebrtcProvider(
+                      //   `${selectedFile}`,
+                      //   ydoc,
+                      //   {
+                      //     peerOpts: {
+                      //       config: {
+                      //         iceServers: [
+                      //           { urls: "stun:stun.l.google.com:19302" },
+                      //           { urls: "stun:stun1.l.google.com:19302" },
+                      //           {
+                      //             urls: "turn:YOUR_TURN_SERVER:3478?transport=tcp",
+                      //             username: "turnuser",
+                      //             credential: "turnpass",
+                      //           },
+                      //         ],
+                      //       },
+                      //     },
+                      //   }
+                      // );
+                      const provider = new WebsocketProvider(
+                        import.meta.env.VITE_YWS_URL,
+                        `${projectId}:${selectedFile}`,
+                        ydoc
                       );
                       const type = ydoc.getText("monaco");
                       const binding = new MonacoBinding(
@@ -678,6 +688,7 @@ function Editor() {
                         new Set([editor]),
                         provider.awareness
                       );
+
                       yRef.current = { ydoc, provider, type, binding };
 
                       editor.updateOptions({

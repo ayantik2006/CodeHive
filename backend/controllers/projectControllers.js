@@ -53,6 +53,8 @@ export async function createFile(req, res) {
     content: "",
   });
   await Project.updateOne({ _id: projectId }, { files: files });
+  const io = req.app.get("io");
+  io.emit("updated files",{projectDetails:projectData});
   res
     .status(200)
     .json({ msg: "new file created", projectDetails: projectData });
@@ -70,6 +72,8 @@ export async function deleteFile(req, res) {
   }
   await Project.updateOne({ _id: id }, { files: newFiles });
   projectData = await Project.findOne({ _id: id });
+  const io = req.app.get("io");
+  io.emit("updated files",{projectDetails:projectData});
   return res
     .status(200)
     .json({ msg: "file deleted", projectDetails: projectData });
@@ -87,6 +91,8 @@ export async function renameFile(req, res) {
   }
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
+  const io = req.app.get("io");
+  io.emit("updated files",{projectDetails:projectData});
   return res
     .status(200)
     .json({ msg: "file deleted", projectDetails: projectData });
@@ -125,7 +131,7 @@ export async function saveFile(req, res) {
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData});
+  io.emit("updated files",{projectDetails:projectData,newContent:code});
   return res
     .status(200)
     .json({ msg: "file saved", files:files.reverse() });

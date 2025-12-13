@@ -11,6 +11,8 @@ import {
   saveFile,
 } from "../controllers/projectControllers.js";
 import { checkLogin } from "../middlewares/checkLogin.js";
+import { isUserAllowed } from "../middlewares/isUserAllowed.js";
+
 const router = express.Router();
 //dashboard part
 router.post("/create-project", createProject);
@@ -18,7 +20,7 @@ router.post("/get-projects", getProjects);
 router.post("/delete-project", deleteProject);
 router.post("/get-projects", getProjects);
 //Editor part
-router.post("/get-project-details", checkLogin, getProjectDetails);
+router.post("/get-project-details", checkLogin,isUserAllowed, getProjectDetails);
 router.post("/create-file",checkLogin, createFile);
 router.post("/delete-file", checkLogin, deleteFile);
 router.post("/rename-file", checkLogin, renameFile);
