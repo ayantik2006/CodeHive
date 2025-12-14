@@ -471,11 +471,11 @@ function Editor() {
                                   { withCredentials: true }
                                 )
                                 .then((res) => {
-                                  setProjectDetails({
-                                    ...res.data.projectDetails,
-                                    files:
-                                      res.data.projectDetails.files.reverse(),
-                                  });
+                                  // setProjectDetails({
+                                  //   ...res.data.projectDetails,
+                                  //   files:
+                                  //     res.data.projectDetails.files.reverse(),
+                                  // });
                                   setSelectedFile(file.name);
                                   selectedFileRef.current = file.name;
                                   if (editorRef.current) {
