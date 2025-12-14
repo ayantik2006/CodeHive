@@ -34,6 +34,11 @@ const schema = new mongoose.Schema({
   creationTime: { type: Number, default: 0 },
 
   editedTime: { type: Number, default: 0 },
+
+  accessRequests: {
+    type: Array,
+    default: [],
+  },
 });
 
 export default mongoose.model("Project", schema);

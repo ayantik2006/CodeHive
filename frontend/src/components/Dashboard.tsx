@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import MainNavbar from "./MainNavbar";
@@ -17,6 +17,7 @@ import {
   Share2,
   Terminal,
   UsersRound,
+  X,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import {
@@ -48,6 +49,7 @@ import { AnimatedGradientText } from "./ui/animated-gradient-text";
 import { PulsatingButton } from "./ui/pulsating-button";
 import { ShimmerButton } from "./ui/shimmer-button";
 import { ShineBorder } from "./ui/shine-border";
+import { io } from "socket.io-client";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -98,6 +100,52 @@ function Dashboard() {
         navigate("/");
       });
   }, [BACKEND_URL, navigate]);
+
+  const socketRef = useRef(null);
+  useEffect(() => {
+    const socket = io(BACKEND_URL, {
+      transports: ["polling", "websocket"],
+      withCredentials: true,
+    });
+    socketRef.current = socket;
+    return () => {
+      socket.disconnect();
+    };
+  }, [BACKEND_URL]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!userData.email) return;
+
+    socket.on(`${userData.email}:access requested`, (data) => {      
+      toast.custom(
+        (t) => (
+          <div className="relative bg-zinc-900 text-white p-4 rounded-[1rem] shadow-lg min-w-[320px] w-fit">
+            <button
+              onClick={() => toast.dismiss(t)}
+              className="absolute top-2 right-2 text-gray-400 hover:text-white"
+            >
+              <X size={16} />
+            </button>
+
+            <p className="font-semibold">Access Request</p>
+            <p className="text-sm text-gray-400">
+              {data.requestedBy} wants access "{data.projectName}"
+            </p>
+            <button className="mt-2 text-[0.7rem] text-[#aaa8a8] border-1 border-[#555454] px-2 py-1 rounded-[0.4rem] hover:bg-[#222222] hover:border-[#777676] duration-300 cursor-pointer">
+              Allow Access
+            </button>
+          </div>
+        ),
+        {
+          duration: Infinity,
+          style: {
+            borderRadius: "1rem",
+          },
+        }
+      );
+    });
+  }, [userData.email]);
 
   return (
     <div className="w-screen min-h-screen bg-[#0F0F10] flex flex-col ">
@@ -159,7 +207,11 @@ function Dashboard() {
             }}
           >
             <DialogTrigger>
-              <ShimmerButton className="font-bold text-white px-8 py-2 m-8  duration-300 cursor-pointer"  background="#4E29A4" shimmerSize="0.2rem">
+              <ShimmerButton
+                className="font-bold text-white px-8 py-2 m-8  duration-300 cursor-pointer"
+                background="#4E29A4"
+                shimmerSize="0.2rem"
+              >
                 Create New Project
               </ShimmerButton>
             </DialogTrigger>
@@ -369,7 +421,7 @@ function Dashboard() {
             </DialogContent>
           </Dialog>
         </div>
-        
+
         <div className="flex-1 flex text-white mx-8 ">
           <div
             className="min-h-full w-full rounded-lg border-1 border-[#1C1D24] mb-2 shadow-[inset_0_0_40px_rgba(255,255,255,0.02)]
@@ -634,7 +686,6 @@ function Dashboard() {
                         className="w-fit h-fit p-4 bg-[#15151e] rounded-[0.3rem] border-2 border-[#222231] hover:scale-[1.01] duration-100"
                         key={project._id}
                       >
-
                         <h2 className="font-semibold">{project.name}</h2>
                         <div className="flex items-center">
                           <Badge className="bg-[#3C210E] text-[#E29017] mt-2">

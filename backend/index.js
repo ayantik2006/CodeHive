@@ -8,7 +8,7 @@ import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import connectMongodb from "./config/db.js";
 import cookieParser from "cookie-parser";
-import { createRequire } from "module";
+import Project from "./models/Project.js";
 
 dotenv.config();
 
@@ -49,6 +49,35 @@ server.listen(8080, () => {
 });
 
 //socket io part gulo
+
 io.on("connection", (socket) => {
-  console.log("socket connected:", socket.id);
+  socket.on("request access", async (data) => {
+    const projectId = data.projectId;
+    const requestedBy = data.requestedBy;
+    const projectOwner = data.projectOwner;
+    // const projectData = await Project.findById(projectId);
+    let projectData=await Project.findById(projectId);
+    let accessRequests=projectData.accessRequests;
+    accessRequests.push(requestedBy);
+    await Project.updateOne({_id:projectId},{accessRequests:accessRequests});
+
+    io.emit(`${projectOwner}:access requested`, {
+      projectId,
+      requestedBy,
+      projectName: projectData.name,
+    });
+  });
+
+  socket.on("grant project access", async (data) => {
+    const { projectId, requestedBy } = data;
+    const projectData = await Project.findById(projectId);
+    let collaborators = projectData.collaborators;
+    collaborators.push(requestedBy); 
+    await Project.updateOne(
+      { _id: projectId },
+      { collaborators: collaborators }
+    );
+    io.emit(`${requestedBy}:access granted`,{projectName:projectData.name});
+  });
+
 });

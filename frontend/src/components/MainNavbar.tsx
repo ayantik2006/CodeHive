@@ -1,5 +1,5 @@
 import { Bell, Menu } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Link } from "react-router-dom";
 import {
@@ -13,11 +13,12 @@ import {
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 
 function MainNavbar() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
-  const [userData,setUserData]=useState({});
+  const [userData, setUserData] = useState({});
 
   useEffect(() => {
     try {
@@ -38,13 +39,10 @@ function MainNavbar() {
           <Link to="/dashboard">Dashboard</Link>
         </div>
         <div className="hover:text-white duration-300 cursor-pointer">
-          Projects
+          Access Requests
         </div>
         <div className="hover:text-white duration-300 cursor-pointer">
-          Teams
-        </div>
-        <div className="hover:text-white duration-300 cursor-pointer">
-          Settings
+          Shared with Me
         </div>
       </div>
       <div className="[@media(min-width:497px)]:hidden">
@@ -79,13 +77,14 @@ function MainNavbar() {
         </Sheet>
       </div>
       <div className="flex gap-4 mr-[2rem] items-center">
-        <Bell className="fill-[#B6BBC8] stroke-[#B6BBC8] cursor-pointer duration-300 hover:fill-[#4E29A4] hover:stroke-[#4E29A4]" />
-
         <DropdownMenu>
           <DropdownMenuTrigger className="outline-none">
             <Avatar className="h-8 w-8 cursor-pointer font-semibold">
               <AvatarFallback>
-                {userData?.name?.split(" ")[0][0]+userData?.name?.split(" ")[userData?.name?.split(" ").length-1][0]}
+                {userData?.name?.split(" ")[0][0] +
+                  userData?.name?.split(" ")[
+                    userData?.name?.split(" ").length - 1
+                  ][0]}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
@@ -93,7 +92,7 @@ function MainNavbar() {
           <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="bg-[#0f0f14] border border-white/10 w-fit min-w-[48px]"
+            className="bg-[#0f0f14] border border-white/10 w-fit min-w-[13rem]"
           >
             <DropdownMenuLabel className="text-gray-300">
               Signed in as
@@ -103,17 +102,13 @@ function MainNavbar() {
               </span>
             </DropdownMenuLabel>
 
-            <DropdownMenuSeparator className="bg-[#2a2b34]"/>
-
-            <DropdownMenuItem className="cursor-pointer text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white duration-300">
-              Profile
-            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-[#2a2b34]" />
 
             <DropdownMenuItem className="cursor-pointer text-white data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-white duration-300">
               Settings
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator className="bg-[#2a2b34]"/>
+            <DropdownMenuSeparator className="bg-[#2a2b34]" />
 
             <DropdownMenuItem
               className="text-red-400 cursor-pointer data-[highlighted]:bg-[#1C1D24] data-[highlighted]:text-red-300"

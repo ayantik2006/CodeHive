@@ -38,9 +38,10 @@ export async function deleteProject(req, res) {
 }
 
 export async function getProjectDetails(req, res) {
+  const user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
   const projectId = req.body.id;
   const projectDetails = await Project.findOne({ _id: projectId });
-  return res.status(200).json({ projectDetails: projectDetails });
+  return res.status(200).json({ projectDetails: projectDetails, user: user });
 }
 
 export async function createFile(req, res) {
