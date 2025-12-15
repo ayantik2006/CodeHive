@@ -65,6 +65,7 @@ function Dashboard() {
   };
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
+    document.title = "Dashboard - CodeHive";
     axios
       .post(BACKEND_URL + "/auth/user", {}, { withCredentials: true })
       .then(() => {
@@ -707,7 +708,7 @@ function Dashboard() {
                         </div>
                         <div className="flex items-center mb-[-0.3rem] mt-1 gap-2">
                           <button
-                            className="bg-[#4E29A4] px-2 py-1 border-1 border-[#22242c] rounded-[0.4rem] text-[0.85rem] cursor-pointer font-semibold"
+                            className="bg-[#4E29A4] px-3 py-1 border- border-[#22242c] rounded-[0.4rem] text-[0.85rem] cursor-pointer font-semibold"
                             onClick={() => {
                               navigate("/editor/" + project._id);
                             }}
@@ -716,7 +717,7 @@ function Dashboard() {
                           </button>
                           <Dialog>
                             <DialogTrigger>
-                              <button className="bg-[#8d090c] px-2 py-1 border-1 border-[#22242c] rounded-[0.4rem] text-[0.85rem] cursor-pointer font-semibold">
+                              <button className="border-[#8d090c] px-2 py-1 border-2  rounded-[0.4rem] text-[0.85rem] cursor-pointer font-semibold text-red-600">
                                 Delete
                               </button>
                             </DialogTrigger>

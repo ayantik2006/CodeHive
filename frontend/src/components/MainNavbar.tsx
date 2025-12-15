@@ -41,9 +41,11 @@ function MainNavbar() {
         <div className="hover:text-white duration-300 cursor-pointer">
           Access Requests
         </div>
-        <div className="hover:text-white duration-300 cursor-pointer">
-          Shared with Me
-        </div>
+        <Link to="/shared-with-me">
+          <div className="hover:text-white duration-300 cursor-pointer">
+            Shared with Me
+          </div>
+        </Link>
       </div>
       <div className="[@media(min-width:497px)]:hidden">
         <Sheet>

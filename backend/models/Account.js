@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
   password: { type: String, default: "" },
   isVerified: { type: Boolean, default: false },
   verificationLinkSendingTime: { type: Number, default: 0 },
-  notification:{type: Array, default: []},
+  sharedWithMe: { type: Array, default: [] },
 });
 
 export default mongoose.model("Account", schema);

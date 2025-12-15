@@ -9,6 +9,7 @@ import projectRoutes from "./routes/projectRoutes.js";
 import connectMongodb from "./config/db.js";
 import cookieParser from "cookie-parser";
 import Project from "./models/Project.js";
+import Account from "./models/Account.js";
 
 dotenv.config();
 
@@ -77,6 +78,10 @@ io.on("connection", (socket) => {
       { _id: projectId },
       { collaborators: collaborators }
     );
+    let requestedByData=await Account.findOne({email:requestedBy});
+    let sharedWithMe=requestedByData.sharedWithMe;
+    sharedWithMe.push(projectId);
+    await Account.updateOne({email:requestedBy},{sharedWithMe:sharedWithMe});
     io.emit(`${requestedBy}:access granted`,{projectName:projectData.name});
   });
 

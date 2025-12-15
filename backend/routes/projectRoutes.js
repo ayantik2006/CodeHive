@@ -9,6 +9,9 @@ import {
   renameFile,
   runCode,
   saveFile,
+  aiExplain,
+  sharedWithMe,
+  removeAccess,
 } from "../controllers/projectControllers.js";
 import { checkLogin } from "../middlewares/checkLogin.js";
 import { isUserAllowed } from "../middlewares/isUserAllowed.js";
@@ -20,11 +23,19 @@ router.post("/get-projects", getProjects);
 router.post("/delete-project", deleteProject);
 router.post("/get-projects", getProjects);
 //Editor part
-router.post("/get-project-details", checkLogin,isUserAllowed, getProjectDetails);
-router.post("/create-file",checkLogin, createFile);
+router.post(
+  "/get-project-details",
+  checkLogin,
+  isUserAllowed,
+  getProjectDetails
+);
+router.post("/create-file", checkLogin, createFile);
 router.post("/delete-file", checkLogin, deleteFile);
 router.post("/rename-file", checkLogin, renameFile);
 router.post("/run-code", checkLogin, runCode);
 router.post("/save-file", checkLogin, saveFile);
+router.post("/ai-explain", aiExplain);
+router.post("/shared-with-me", checkLogin, sharedWithMe);
+router.post("/remove-access", checkLogin, removeAccess);
 
 export default router;

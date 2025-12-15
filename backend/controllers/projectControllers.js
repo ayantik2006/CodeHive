@@ -1,4 +1,5 @@
 import Project from "../models/Project.js";
+import Account from "../models/Account.js";
 import jwt from "jsonwebtoken";
 import axios from "axios";
 export async function createProject(req, res) {
@@ -56,7 +57,7 @@ export async function createFile(req, res) {
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData});
+  io.emit("updated files", { projectDetails: projectData });
   res
     .status(200)
     .json({ msg: "new file created", projectDetails: projectData });
@@ -75,7 +76,10 @@ export async function deleteFile(req, res) {
   await Project.updateOne({ _id: id }, { files: newFiles });
   projectData = await Project.findOne({ _id: id });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData,deletedFile:fileName});
+  io.emit("updated files", {
+    projectDetails: projectData,
+    deletedFile: fileName,
+  });
   return res
     .status(200)
     .json({ msg: "file deleted", projectDetails: projectData });
@@ -94,7 +98,7 @@ export async function renameFile(req, res) {
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData});
+  io.emit("updated files", { projectDetails: projectData });
   return res
     .status(200)
     .json({ msg: "file deleted", projectDetails: projectData });
@@ -133,8 +137,101 @@ export async function saveFile(req, res) {
   await Project.updateOne({ _id: projectId }, { files: files });
   projectData = await Project.findOne({ _id: projectId });
   const io = req.app.get("io");
-  io.emit("updated files",{projectDetails:projectData,newContent:code});
-  return res
-    .status(200)
-    .json({ msg: "file saved", files:files.reverse() });
+  io.emit("updated files", { projectDetails: projectData, newContent: code });
+  return res.status(200).json({ msg: "file saved", files: files.reverse() });
+}
+
+export async function aiExplain(req, res) {
+  const { code, language } = req.body;
+  const prompt = `
+    Language: ${language}
+
+Code snippet:
+${code}
+
+explain the above code's error.
+Do NOT show reasoning, analysis, or search references.
+Return only the final explanation, fix, and tip.
+You are a programming error explainer.
+
+Rules:
+- Do NOT reveal your reasoning or analysis.
+- Do NOT use <think> tags or explain your thought process.
+- Do NOT mention searches or sources.
+- Output ONLY the final answer.
+
+Format STRICTLY as:
+Cause:
+Fix:
+Prevention Tip:
+Provide your answer in the above format only.
+  `;
+
+  try {
+    const response = await axios.post(
+      "https://api.perplexity.ai/chat/completions",
+      {
+        model: "sonar",
+        messages: [
+          { role: "user", content: prompt },
+        ],
+        max_tokens: 300,
+        temperature: 0.2,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    res.status(200).json({msg:response.data.choices[0].message.content});
+  } catch (err) {
+    res.status(404).json({ msg: "error in AI explanation" });
+  }
+}
+
+export async function sharedWithMe(req, res) {
+  const user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
+
+  const userData=await Account.findOne({email:user});
+  const sharedProjectsId=userData.sharedWithMe;
+  const sharedProjectsData=await Project.find({_id:{$in:sharedProjectsId}});
+  
+  return res.status(200).json({sharedProjects:sharedProjectsData});
+}
+
+export async function removeAccess(req, res) {
+  const {projectId}=req.body;
+  const user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
+  console.log(projectId);
+  const projectData=await Project.findOne({_id:projectId});
+  const collaborators=projectData.collaborators;
+  const newCollaborators=[];
+  for(let collaborator of collaborators){
+    if(collaborator!==user){
+      newCollaborators.push(collaborator);
+    }
+  }
+  await Project.updateOne({_id:projectId},{collaborators:newCollaborators});
+  const accessRequests=projectData.accessRequests;
+  const newAccessRequests=[];
+  for(let request of accessRequests){
+    if(request!==user){
+      newAccessRequests.push(request);
+    } 
+  }
+  await Project.updateOne({_id:projectId},{accessRequests:newAccessRequests});
+  const userData=await Account.findOne({email:user});
+  const sharedWithMe=userData.sharedWithMe;
+  const newSharedWithMe=[];
+  for(let sharedProject of sharedWithMe){
+    if(sharedProject.toString()!==projectId.toString()){
+      newSharedWithMe.push(sharedProject);
+    }
+  }
+  await Account.updateOne({email:user},{sharedWithMe:newSharedWithMe});
+  const sharedProjectsData=await Project.find({_id:{$in:newSharedWithMe}});
+
+  return res.status(200).json({msg:"access removed",sharedProjects:sharedProjectsData});
 }

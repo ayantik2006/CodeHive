@@ -6,7 +6,14 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "./ui/resizable";
-import { CircleAlert, Play, Settings, SquarePlus, X } from "lucide-react";
+import {
+  CircleAlert,
+  Play,
+  Settings,
+  SquarePlus,
+  WandSparkles,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import emptyProject from "../assets/emptyProject.png";
@@ -41,6 +48,8 @@ import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { MonacoBinding } from "y-monaco";
 import { io } from "socket.io-client";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function cleanError(stderr) {
   const firstLine = stderr
@@ -90,6 +99,7 @@ function Editor() {
   const [requestedBy, setRequestedBy] = useState("");
   const [requestedProjectId, setRequestedProjectId] = useState("");
   const [user, setUser] = useState("");
+  const [aiExplaination, setAiExplaination] = useState("");
 
   useEffect(() => {
     axios
@@ -103,6 +113,7 @@ function Editor() {
           ...res.data.projectDetails,
           files: [...res.data.projectDetails.files].reverse(),
         });
+        document.title = `${res.data.projectDetails.name} - CodeHive`;
         setUser(res.data.user);
       })
       .catch((e) => {
@@ -113,6 +124,7 @@ function Editor() {
             ...e.response.data.projectData,
             files: e.response.data.projectData.files.reverse(),
           });
+          document.title = `${e.response.data.projectData.name} - CodeHive`;
           setRequestedBy(e.response.data.requestedBy);
           setUser(e.response.data.requestedBy);
         }
@@ -188,12 +200,13 @@ function Editor() {
     });
 
     socket.on(`${user}:access granted`, (data) => {
-      if(!accessDeniedPageRef.current) return;  
-      accessDeniedPageRef.current.innerText="You have been granted access! Please refresh the page.";
-      accessDeniedPageRef.current.style.color="white";
-      accessDeniedPageRef.current.style.fontSize="1.5rem";
-      accessDeniedPageRef.current.style.marginTop="20rem";
-      accessDeniedPageRef.current.style.fontWeight="600";
+      if (!accessDeniedPageRef.current) return;
+      accessDeniedPageRef.current.innerText =
+        "You have been granted access! Please refresh the page.";
+      accessDeniedPageRef.current.style.color = "white";
+      accessDeniedPageRef.current.style.fontSize = "1.5rem";
+      accessDeniedPageRef.current.style.marginTop = "20rem";
+      accessDeniedPageRef.current.style.fontWeight = "600";
       // setIsAccessAllowed(true);
     });
   }, [requestedBy, user]);
@@ -204,7 +217,10 @@ function Editor() {
       <div className="flex flex-col bg-[#0F0F10] min-h-screen overflow-hidden items-center justify-center bg-[url('../../grid.svg')]">
         <div className="fixed top-0 w-full">
           <MainNavbar />
-          <div className="flex flex-col items-center justify-center mt-40 text-center" ref={accessDeniedPageRef}>
+          <div
+            className="flex flex-col items-center justify-center mt-40 text-center"
+            ref={accessDeniedPageRef}
+          >
             <h1 className="text-white font-bold text-2xl mt-20">
               Access Denied for {projectDetails.name}
             </h1>
@@ -861,8 +877,54 @@ function Editor() {
                   )}
                   {codeOutput !== "Run the code to see the output" && (
                     <div className="text-white bg-whit w-full px-4 py-2 flex flex-col">
-                      <div className="bg-[#3a3939] px-2 py-1 rounded-[0.3rem] font-semibold">
-                        OUTPUT
+                      <div className="bg-[#3a3939] px-2 py-1 rounded-[0.3rem] font-semibold flex justify-between">
+                        <p>OUTPUT</p>
+                        {isError && (
+                          <Dialog onOpenChange={(e)=>{
+                            if(e){
+                              setAiExplaination("");
+                            }
+                          }}>
+                            <DialogTrigger>
+                              <button
+                                className="flex items-center gap-1 text-[0.9rem] text-[#b393fd] cursor-pointer mr-3"
+                                onClick={async () => {
+                                  const wrongCode =
+                                    editorRef.current.getValue();
+                                  try {
+                                    const res = await axios.post(
+                                      BACKEND_URL + "/project/ai-explain",
+                                      {
+                                        code: wrongCode,
+                                        language:
+                                          languageName[projectDetails.language],
+                                      },
+                                      { withCredentials: true }
+                                    );
+                                    const errorAnalysis = res.data.msg;
+                                    setAiExplaination(errorAnalysis);
+                                  } catch (e) {
+                                    console.log(e);
+                                  }
+                                }}
+                              >
+                                <WandSparkles size={17} />
+                                AI EXPLAIN
+                              </button>
+                            </DialogTrigger>
+                            <DialogContent className="bg-[#0C0E15] text-white border-1 border-[#1C1D24]">
+                              <DialogHeader>
+                                <DialogTitle>
+                                  AI Analysis of the Error
+                                </DialogTitle>
+                              </DialogHeader>
+                              {(aiExplaination==="")?"Analyzing...":""}
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {aiExplaination}
+                              </ReactMarkdown>
+                            </DialogContent>
+                          </Dialog>
+                        )}
                       </div>
                       <p
                         className={`mt-2 ml-1 ${
