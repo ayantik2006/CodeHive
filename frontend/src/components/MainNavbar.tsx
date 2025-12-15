@@ -71,7 +71,7 @@ function MainNavbar() {
           </div>
         </Link>
       </div>
-      <div className="[@media(min-width:503px)]:hidden">
+      <div className="[@media(min-width:503px)]:hidden mr-auto">
         <Sheet>
           <SheetTrigger>
             <button className="cursor-pointer">
