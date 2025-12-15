@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import Editor from "./components/Editor.tsx";
 import SharedWithMe from "./components/SharedWithMe.tsx";
+import AccessManagement from "./components/AccessManagement.tsx";
 
 function App() {  
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/editor/:projectId" element={<Editor />}></Route>
           <Route path="/shared-with-me" element={<SharedWithMe />}></Route>
+          <Route path="/access-management" element={<AccessManagement />}></Route>
         </Routes>
       </BrowserRouter>
     </>

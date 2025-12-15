@@ -50,6 +50,7 @@ import { PulsatingButton } from "./ui/pulsating-button";
 import { ShimmerButton } from "./ui/shimmer-button";
 import { ShineBorder } from "./ui/shine-border";
 import { io } from "socket.io-client";
+import { Button } from "./ui/button";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -118,34 +119,36 @@ function Dashboard() {
     const socket = socketRef.current;
     if (!userData.email) return;
 
-    socket.on(`${userData.email}:access requested`, (data) => {      
-      toast.custom(
-        (t) => (
-          <div className="relative bg-zinc-900 text-white p-4 rounded-[1rem] shadow-lg min-w-[320px] w-fit">
-            <button
-              onClick={() => toast.dismiss(t)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white"
-            >
-              <X size={16} />
-            </button>
+    // socket.on(`${userData.email}:access requested`, (data) => {      
+    //   toast.custom(
+    //     (t) => (
+    //       <div className="relative bg-zinc-900 text-white p-4 rounded-[1rem] shadow-lg min-w-[320px] w-fit">
+    //         <button
+    //           onClick={() => toast.dismiss(t)}
+    //           className="absolute top-2 right-2 text-gray-400 hover:text-white"
+    //         >
+    //           <X size={16} />
+    //         </button>
 
-            <p className="font-semibold">Access Request</p>
-            <p className="text-sm text-gray-400">
-              {data.requestedBy} wants access "{data.projectName}"
-            </p>
-            <button className="mt-2 text-[0.7rem] text-[#aaa8a8] border-1 border-[#555454] px-2 py-1 rounded-[0.4rem] hover:bg-[#222222] hover:border-[#777676] duration-300 cursor-pointer">
-              Allow Access
-            </button>
-          </div>
-        ),
-        {
-          duration: Infinity,
-          style: {
-            borderRadius: "1rem",
-          },
-        }
-      );
-    });
+    //         <p className="font-semibold">Access Request</p>
+    //         <p className="text-sm text-gray-400">
+    //           {data.requestedBy} wants access to "{data.projectName}". Check Access Management to grant access.
+    //         </p>
+    //         {/* <button className="mt-2 text-[0.7rem] text-[#aaa8a8] border-1 border-[#555454] px-2 py-1 rounded-[0.4rem] hover:bg-[#222222] hover:border-[#777676] duration-300 cursor-pointer" onClick={()=>{
+
+    //         }}>
+    //           Allow Access
+    //         </button> */}
+    //       </div>
+    //     ),
+    //     {
+    //       duration: Infinity,
+    //       style: {
+    //         borderRadius: "1rem",
+    //       },
+    //     }
+    //   );
+    // });
   }, [userData.email]);
 
   return (
@@ -164,7 +167,7 @@ function Dashboard() {
       <div className="flex-1 flex flex-col">
         <div className="flex [@media(max-width:1013px)]:flex-col items-center justify-between [@media(max-width:1013px)]:justify-center bg-gradient-to-b from-[#f5f3f307] to-transparent bg-[url('../../grid.svg')] opacity-[5]">
           <div className="m-8 flex flex-col [@media(max-width:1013px)]:items-center [@media(max-width:1013px)]:text-center">
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center [@media(max-width:520px)]:hidden">
               <Badge
                 variant="default"
                 className="bg-[#1b1b25] border border-[#2a2a37] flex items-center"
@@ -187,8 +190,8 @@ function Dashboard() {
                 AI assisted coding
               </Badge>
             </div>
-            <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex text-shadow-[0_0_px] mt-2">
-              Welcome back,&nbsp;{" "}
+            <h1 className="text-white text-[2rem] font-bold [@media(max-width:631px)]:text-[2rem] flex flex-wrap text-shadow-[0_0_px] mt-2 items-center text-center [@media(max-width:1013px)]:justify-center">
+              <p className="text-center">Welcome back,</p> &nbsp;
               <p className="bg-gradient-to-r from-[#7233e7] to-[#8d66d5] bg-clip-text text-transparent">
                 <AnimatedGradientText>
                   {userData?.name?.split(" ")[0] || ""}{" "}
@@ -208,13 +211,11 @@ function Dashboard() {
             }}
           >
             <DialogTrigger>
-              <ShimmerButton
-                className="font-bold text-white px-8 py-2 m-8  duration-300 cursor-pointer"
-                background="#4E29A4"
-                shimmerSize="0.2rem"
+              <Button
+                className="font-bold text-white px-8 py-2 m-8 bg-[#4e29a4] hover:scale-[1.07] hover:bg-[#4e29a4] duration-200 cursor-pointer [@media(max-width:1013px)]:mt-[0.5rem]"
               >
                 Create New Project
-              </ShimmerButton>
+              </Button>
             </DialogTrigger>
             <DialogContent className="border-[#1C1D24] border-1 bg-[#0c0e15] text-white">
               <DialogHeader>
@@ -340,7 +341,7 @@ function Dashboard() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <label>Visibility</label>
+                {/* <label>Visibility</label>
                 <div className="flex gap-2 h-[2.6rem]">
                   <div className="bg-[#241840] border-1 border-[#653FBD] flex-1 rounded-[0.4rem] flex flex-col items-center">
                     <div className="flex mx-2 my-2 gap-2 cursor-pointer self-start items-center justify-center">
@@ -394,7 +395,7 @@ function Dashboard() {
                       </label>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 <div className="flex flex-row-reverse gap-2">
                   <button
                     className={`bg-[#513396] px-3 py-1 rounded-[0.3rem] cursor-pointer hover:bg-[#432b7c] duration-300 flex items-center gap-2 ${
@@ -595,7 +596,7 @@ function Dashboard() {
                             </SelectGroup>
                           </SelectContent>
                         </Select>
-                        <label>Visibility</label>
+                        {/* <label>Visibility</label>
                         <div className="flex gap-2 h-[2.6rem]">
                           <div className="bg-[#241840] border-1 border-[#653FBD] flex-1 rounded-[0.4rem] flex flex-col items-center">
                             <div className="flex mx-2 my-2 gap-2 cursor-pointer self-start items-center justify-center">
@@ -649,7 +650,7 @@ function Dashboard() {
                               </label>
                             </div>
                           </div>
-                        </div>
+                        </div> */}
                         <div className="flex flex-row-reverse gap-2">
                           <button
                             className={`bg-[#513396] px-3 py-1 rounded-[0.3rem] cursor-pointer hover:bg-[#432b7c] duration-300 flex items-center gap-2 ${
@@ -679,12 +680,12 @@ function Dashboard() {
                 </div>
               )}
 
-              <div className="flex flex-wrap flex-1 gap-2 w-full px-4">
+              <div className="flex flex-wrap flex-1 gap-5 w-full px-4">
                 {userProjects.length !== 0 &&
                   userProjects.map((project, index) => {
                     return (
                       <div
-                        className="w-fit h-fit p-4 bg-[#15151e] rounded-[0.3rem] border-2 border-[#222231] hover:scale-[1.01] duration-100"
+                        className="w-fit h-fit p-4 bg-[#15151e] rounded-[0.3rem] border-2 border-[#222231] hover:scale-[1.03] duration-100"
                         key={project._id}
                       >
                         <h2 className="font-semibold">{project.name}</h2>
@@ -697,16 +698,16 @@ function Dashboard() {
                               ? `Created ${format(project.creationTime)}`
                               : `Edited ${format(project.editedTime)}`}
                           </p>
-                          <Avatar className="h-8 w-8 mt-2 ml-10">
+                          {/* <Avatar className="h-8 w-8 mt-2 ml-10">
                             <AvatarFallback className="text-black font-semibold">
                               {userData?.name?.split(" ")[0][0] +
                                 userData?.name?.split(" ")[
                                   userData?.name?.split(" ").length - 1
                                 ][0]}
                             </AvatarFallback>
-                          </Avatar>
+                          </Avatar> */}
                         </div>
-                        <div className="flex items-center mb-[-0.3rem] mt-1 gap-2">
+                        <div className="flex items-center mb-[-0.3rem] mt-3 gap-2">
                           <button
                             className="bg-[#4E29A4] px-3 py-1 border- border-[#22242c] rounded-[0.4rem] text-[0.85rem] cursor-pointer font-semibold"
                             onClick={() => {

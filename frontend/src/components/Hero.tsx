@@ -47,17 +47,17 @@ function Hero() {
             </Badge>
           </div>
           <p className="text-[#e0e0e0] text-[3rem] font-bold text-center [@media(max-width:785px)]:text-[3rem] mt-3">
-            Code. Collaborate. <br />
-            Create. Together
+            Stop screen-sharing. <br />
+            Start coding together.
           </p>
-          <p className="text-[#7A7B7D] text-[1.3rem] ml-1 text-center">
+          <p className="text-neutral-400 text-[1.3rem] ml-1 text-center">
             Real-time collaboration, shared cursors, <br /> cloud saves, and
             one-click runs - no setup.
           </p>
           <div className="flex gap-4 text-[0.9rem] text-white self-center">
-            <button className="bg-[#15151a] border-2 border-[#1E1F20] px-4 py-2 rounded-[0.6rem] cursor-pointer">
+            {/* <button className="bg-[#15151a] border-2 border-[#1E1F20] px-4 py-2 rounded-[0.6rem] cursor-pointer">
               Try Demo
-            </button>
+            </button> */}
             <Link to="/auth">
               <button className="bg-[#512fa2] px-4 py-2 rounded-[0.6rem] font-semibold cursor-pointer duration-300 hover:bg-[#4c2c96]">
                 <p className="flex items-center gap-1">
@@ -93,7 +93,7 @@ function Hero() {
             See where others are working in the editor
           </p>
         </div>
-        <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
+        {/* <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <MessageCircle
               size={30}
@@ -104,7 +104,7 @@ function Hero() {
           <p className="text-[#7A7B7D]">
             Chat with your collaborators instantly
           </p>
-        </div>
+        </div> */}
         <div className="w-[14rem] h-[10rem] bg-[#151518] border-1 border-gray-800 rounded-[0.7rem] p-5 flex flex-col gap-[1rem] hover:scale-[1.02] duration-300">
           <h1 className="flex text-white items-center gap-2 text-[1.3rem] font-semibold">
             <CloudUpload

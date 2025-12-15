@@ -7,8 +7,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../firebase.tsx";
 
 function Auth() {
+  const provider = new GoogleAuthProvider();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -124,6 +127,20 @@ function Auth() {
               <button
                 className="bg-[#15151a] border-2 border-[#1E1F20] px-4 py-2 rounded-[0.6rem] cursor-pointer flex justify-center gap-2 items-center font-semibold"
                 type="button"
+                onClick={async () => {
+                  const result = await signInWithPopup(auth, provider);
+                  const user = result.user;
+                  const email=user.email;
+                  const name=user.displayName;
+                  const photoUrl=user.photoURL;
+                  try{
+                    await axios.post(BACKEND_URL+"/auth/google-oauth",{email:email,name:name,photoUrl:photoUrl},{withCredentials:true});
+                    navigate("/");
+                  }
+                  catch(e){
+                    console.log(e);
+                  }
+                }}
               >
                 <img
                   src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg"
@@ -132,7 +149,8 @@ function Auth() {
                 <p>Google</p>
               </button>
               <p className="text-gray-500 text-center mt-5">
-                Still under development, for now use, <br /> email: ayantik.sarkar2020@gmail.com <br />
+                Still under development, for now use, <br /> email:
+                ayantik.sarkar2020@gmail.com <br />
                 password: as
               </p>
             </form>

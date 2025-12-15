@@ -10,6 +10,7 @@ import {
   CircleAlert,
   Play,
   Settings,
+  Share2,
   SquarePlus,
   WandSparkles,
   X,
@@ -50,6 +51,7 @@ import { MonacoBinding } from "y-monaco";
 import { io } from "socket.io-client";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 function cleanError(stderr) {
   const firstLine = stderr
@@ -173,7 +175,7 @@ function Editor() {
 
             <p className="font-semibold">Access Request</p>
             <p className="text-sm text-gray-400">
-              {data.requestedBy} wants access "{data.projectName}"
+              {data.requestedBy} wants access to "{data.projectName}"
             </p>
             <button
               className="mt-2 text-[0.7rem] text-[#aaa8a8] border-1 border-[#555454] px-2 py-1 rounded-[0.4rem] hover:bg-[#222222] hover:border-[#777676] duration-300 cursor-pointer"
@@ -280,7 +282,24 @@ function Editor() {
               <div className="flex flex-col h-full items-center px-6 py-4 w-[11rem] w-full">
                 <div className="text-white font-bold text-[1.1rem] flex flex-col gap-3 justify-start w-full max-w-[12rem]">
                   <p className="text-gray-500 text-[0.84rem]">FILE EXPLORER</p>
-                  <p className="text-[1.3rem]">{projectDetails.name}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[1.3rem]">{projectDetails.name}</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Share2
+                          size={16}
+                          className="mt-1 cursor-pointer text-neutral-600"
+                          onClick={() => {
+                            navigator.clipboard.writeText(document.location.href);
+                            toast("Share Link copied to clipboard!");
+                          }}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy Share Link</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <Dialog
                     onOpenChange={(e) => {
                       if (e) setIsFileExist(false);
@@ -714,7 +733,7 @@ function Editor() {
                   >
                     <div
                       className={`flex items-center gap-2 cursor-pointer bg-[#1E1E1E] px-3 py-1 rounded-[0.3rem] hover:bg-[#323232] ${
-                        isCodeRunning ? "bg-gray-700 pointer-events-none" : ""
+                        isCodeRunning ? "bg-neutral-800 pointer-events-none" : ""
                       }`}
                       onClick={async () => {
                         const code = editorRef.current.getValue();
@@ -749,14 +768,14 @@ function Editor() {
                     >
                       <Play
                         className={`fill-[#4E29A4] stroke-[#4E29A4] mt-[0.1rem] ${
-                          isCodeRunning ? "fill-gray-800 stroke-gray-800" : ""
+                          isCodeRunning ? "fill-neutral-600 stroke-neutral-600" : ""
                         }`}
                       />
                       <p className="font-bold text-[#dad9d9]">
                         {isCodeRunning ? "Running..." : "Run Code"}
                       </p>
                     </div>
-                    <div className="flex cursor-pointer bg-[#1E1E1E] py-[0.45rem] rounded-[0.3rem] px-3">
+                    {/* <div className="flex cursor-pointer bg-[#1E1E1E] py-[0.45rem] rounded-[0.3rem] px-3">
                       <Dialog>
                         <DialogTrigger>
                           <Settings
@@ -773,7 +792,7 @@ function Editor() {
                           </DialogHeader>
                         </DialogContent>
                       </Dialog>
-                    </div>
+                    </div> */}
                   </div>
                 )}
                 <ResizablePanel defaultSize={75} className="flex flex-col">
@@ -880,11 +899,13 @@ function Editor() {
                       <div className="bg-[#3a3939] px-2 py-1 rounded-[0.3rem] font-semibold flex justify-between">
                         <p>OUTPUT</p>
                         {isError && (
-                          <Dialog onOpenChange={(e)=>{
-                            if(e){
-                              setAiExplaination("");
-                            }
-                          }}>
+                          <Dialog
+                            onOpenChange={(e) => {
+                              if (e) {
+                                setAiExplaination("");
+                              }
+                            }}
+                          >
                             <DialogTrigger>
                               <button
                                 className="flex items-center gap-1 text-[0.9rem] text-[#b393fd] cursor-pointer mr-3"
@@ -912,13 +933,13 @@ function Editor() {
                                 AI EXPLAIN
                               </button>
                             </DialogTrigger>
-                            <DialogContent className="bg-[#0C0E15] text-white border-1 border-[#1C1D24]">
+                            <DialogContent className="bg-[#0C0E15] text-neutral-400 border-1 border-[#1C1D24]">
                               <DialogHeader>
-                                <DialogTitle>
+                                <DialogTitle className="text-white">
                                   AI Analysis of the Error
                                 </DialogTitle>
                               </DialogHeader>
-                              {(aiExplaination==="")?"Analyzing...":""}
+                              {aiExplaination === "" ? "Analyzing..." : ""}
                               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {aiExplaination}
                               </ReactMarkdown>

@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import MainFooter from "./MainFooter";
 
 function SharedWithMe() {
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -46,6 +47,13 @@ function SharedWithMe() {
           <p className="flex-2 font-bold">Owner</p>
           <p className="flex-1 font-bold"></p>
         </div>
+        {
+          sharedProjects.length === 0 && (
+            <div className="text-white p-5">
+              No projects have been shared with you.
+            </div>
+          )
+        }
         {sharedProjects.map((project, index) => {
           return (
             <div className="flex text-white items-center p-5 py-3 bg-[#282727]">
@@ -102,6 +110,7 @@ function SharedWithMe() {
           );
         })}
       </div>
+      <div className="fixed bottom-0 w-full"><MainFooter/></div>
     </div>
   );
 }
