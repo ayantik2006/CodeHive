@@ -35,6 +35,9 @@ export async function getProjects(req, res) {
 export async function deleteProject(req, res) {
   const projectId = req.body.id;
   await Project.deleteOne({ _id: projectId });
+  
+
+
   return res.status(200).json({ msg: "project deleted" });
 }
 
@@ -204,7 +207,6 @@ export async function sharedWithMe(req, res) {
 export async function removeAccess(req, res) {
   const {projectId}=req.body;
   const user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
-  console.log(projectId);
   const projectData=await Project.findOne({_id:projectId});
   const collaborators=projectData.collaborators;
   const newCollaborators=[];
@@ -214,6 +216,7 @@ export async function removeAccess(req, res) {
     }
   }
   await Project.updateOne({_id:projectId},{collaborators:newCollaborators});
+
   const accessRequests=projectData.accessRequests;
   const newAccessRequests=[];
   for(let request of accessRequests){
@@ -222,6 +225,7 @@ export async function removeAccess(req, res) {
     } 
   }
   await Project.updateOne({_id:projectId},{accessRequests:newAccessRequests});
+  
   const userData=await Account.findOne({email:user});
   const sharedWithMe=userData.sharedWithMe;
   const newSharedWithMe=[];
@@ -233,5 +237,21 @@ export async function removeAccess(req, res) {
   await Account.updateOne({email:user},{sharedWithMe:newSharedWithMe});
   const sharedProjectsData=await Project.find({_id:{$in:newSharedWithMe}});
 
+
+
   return res.status(200).json({msg:"access removed",sharedProjects:sharedProjectsData});
+}
+
+export async function accessManagement(req, res) {
+  const user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
+  const userData=await Account.findOne({email:user});
+  const accessManagementProjects=userData.accessManagementProjects;
+  const newAccessManagementProjects=[];
+  for(let project of accessManagementProjects){
+    const projectData=await Project.findOne({_id:project.projectId});
+    if(projectData==null) continue; 
+    project.projectName=projectData?.name;
+    newAccessManagementProjects.push(project);
+  }
+  res.status(200).json({accessManagementProjects:newAccessManagementProjects});
 }

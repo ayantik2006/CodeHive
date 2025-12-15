@@ -12,6 +12,7 @@ import {
   aiExplain,
   sharedWithMe,
   removeAccess,
+  accessManagement
 } from "../controllers/projectControllers.js";
 import { checkLogin } from "../middlewares/checkLogin.js";
 import { isUserAllowed } from "../middlewares/isUserAllowed.js";
@@ -37,5 +38,6 @@ router.post("/save-file", checkLogin, saveFile);
 router.post("/ai-explain", aiExplain);
 router.post("/shared-with-me", checkLogin, sharedWithMe);
 router.post("/remove-access", checkLogin, removeAccess);
+router.post("/access-management", checkLogin, accessManagement);
 
 export default router;

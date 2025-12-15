@@ -95,7 +95,7 @@ export async function logout(req, res) {
     res.clearCookie("user", {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? "none" : "lax"
+      sameSite: isProduction ? "none" : "lax",
     });
     return res.status(200).json({});
   } catch (e) {
@@ -103,13 +103,63 @@ export async function logout(req, res) {
   }
 }
 
-export async function userInfo(req,res){
+export async function userInfo(req, res) {
   let user;
   try {
     user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
   } catch (e) {
     return res.status(404).json({});
   }
-  const userData=await Account.findOne({email:user});
-  return res.json({userData});
+  const userData = await Account.findOne({ email: user });
+  return res.json({ userData });
+}
+
+export async function changePassword(req, res) {
+  let user;
+  try {
+    user = await jwt.verify(req.cookies.user, process.env.JWT_SECRET).user;
+  } catch (e) {
+    return res.status(401).json({});
+  }
+
+  const { oldPassword, newPassword } = req.body;
+  const userData = await Account.findOne({ email: user });
+  if (userData.password === "")
+    return res
+      .status(405)
+      .json({ msg: "Changing password not allowed for this account!" });
+
+  const isOldPasswordRight = await bcrypt.compare(
+    oldPassword,
+    userData.password
+  );
+  if (!isOldPasswordRight)
+    return res.status(400).json({ msg: "The old password is incorrect!" });
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  await Account.updateOne({ email: user }, { password: hashedPassword });
+
+  return res.status(200).json({ msg: "Password changed!" });
+}
+
+export async function googleOauth(req, res) {
+  const { email, name, photoUrl } = req.body;
+  const userData = await Account.findOne({ email: email });
+  const isProduction = !(process.env.BACKEND_URL === "http://localhost:8080");
+  const token = jwt.sign({ user: email }, process.env.JWT_SECRET);
+  if (userData !== null) {
+    res.cookie("user", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
+    return res.status(200).json({});
+  }
+  await Account.create({ email: email, name: name, photoUrl: photoUrl, isVerified:true });
+  res.cookie("user", token, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+  return res.status(200).json({});
 }

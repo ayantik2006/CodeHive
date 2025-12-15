@@ -10,6 +10,7 @@ import connectMongodb from "./config/db.js";
 import cookieParser from "cookie-parser";
 import Project from "./models/Project.js";
 import Account from "./models/Account.js";
+import { stat } from "fs";
 
 dotenv.config();
 
@@ -56,11 +57,19 @@ io.on("connection", (socket) => {
     const projectId = data.projectId;
     const requestedBy = data.requestedBy;
     const projectOwner = data.projectOwner;
-    // const projectData = await Project.findById(projectId);
     let projectData=await Project.findById(projectId);
     let accessRequests=projectData.accessRequests;
     accessRequests.push(requestedBy);
     await Project.updateOne({_id:projectId},{accessRequests:accessRequests});
+    const projectAccessRequest={
+      projectId:projectId,
+      requestedBy:requestedBy,
+      status:"pending"
+    }
+    const ownerData=await Account.findOne({email:projectOwner});
+    let accessRequestsForOwner=ownerData.accessManagementProjects || [];
+    accessRequestsForOwner.push(projectAccessRequest);
+    await Account.updateOne({email:projectOwner},{accessManagementProjects:accessRequestsForOwner});
 
     io.emit(`${projectOwner}:access requested`, {
       projectId,
@@ -82,6 +91,16 @@ io.on("connection", (socket) => {
     let sharedWithMe=requestedByData.sharedWithMe;
     sharedWithMe.push(projectId);
     await Account.updateOne({email:requestedBy},{sharedWithMe:sharedWithMe});
+
+    const ownerData=await Account.findOne({email:projectData.owner});
+    let accessRequestsForOwner=ownerData.accessManagementProjects || [];
+    for(let projectRequest of accessRequestsForOwner){
+      if(projectRequest.projectId.toString()===projectId.toString() && projectRequest.requestedBy===requestedBy){
+        projectRequest.status="granted";
+      }
+    }
+    await Account.updateOne({email:projectData.owner},{accessManagementProjects:accessRequestsForOwner});
+
     io.emit(`${requestedBy}:access granted`,{projectName:projectData.name});
   });
 

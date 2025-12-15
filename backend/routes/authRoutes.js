@@ -6,8 +6,9 @@ import {
   user,
   logout,
   userInfo,
+  changePassword,
+  googleOauth
 } from "../controllers/authControllers.js";
-import { checkLogin } from "../middlewares/checkLogin.js";
 const router = express.Router();
 
 router.post("/user", user);
@@ -16,5 +17,7 @@ router.post("/signup", signup);
 router.post("/logout", logout);
 router.post("/user-info", userInfo);
 router.post("/verification/:id", emailVerification);
+router.post("/change-password", changePassword);
+router.post("/google-oauth", googleOauth);
 
 export default router;
