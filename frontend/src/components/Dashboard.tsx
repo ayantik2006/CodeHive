@@ -239,7 +239,7 @@ function Dashboard() {
                       {
                         projectName: e.currentTarget[0].value,
                         language: e.currentTarget[2].value,
-                        visibility: e.currentTarget.visibility.value,
+                        visibility: "private",
                       },
                       { withCredentials: true }
                     );
@@ -491,7 +491,7 @@ function Dashboard() {
                               {
                                 projectName: e.currentTarget[0].value,
                                 language: e.currentTarget[2].value,
-                                visibility: e.currentTarget.visibility.value,
+                                visibility: "private",
                               },
                               { withCredentials: true }
                             );
