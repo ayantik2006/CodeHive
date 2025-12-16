@@ -1,21 +1,34 @@
-# CodeHive - A Real-time Collaborative Code Editor
+# CodeHive — Real-Time Collaborative Code Editor
+
+CodeHive is a web-based code editor that allows multiple users to write, edit, and run code together in real time.
 
 ## Features
-- Run code with one click
-- Multi language support (Java, C++, Python, JavaScript)
-- AI powered Error Analysis
-- Edit with 2 or more people collaboratively
+- One-click code execution
+- Multi-language support: Java, C++, Python, JavaScript
+- AI-powered error analysis and suggestions
+- Real-time collaborative editing with 2+ users
+- Google OAuth authentication
 
 ## Tech Stack
-- ReactJS for frontend
-- ExpressJS for backend
-- MongoDB as the database
-- ShadCN as the UI component library
-- Perplexity API (valid till August 2026)
-- Piston API to run the code in backend
-- Monaco API for VSCode style code editor
-- YJS for managing real-time collaboration
-- y-websocket as yjs binding
-- socket.io for sending data from client-client
-- Firebase Google OAuth for "Login through Google"
 
+### Frontend
+- React.js
+- ShadCN UI
+- Monaco Editor (VS Code–like editing experience)
+
+### Backend
+- Node.js
+- Express.js
+- Socket.IO (real-time client communication)
+- Piston API (code execution engine)
+- Perplexity API (AI error analysis — valid till Aug 2026)
+
+### Database
+- MongoDB
+
+### Real-Time Collaboration
+- Yjs (CRDT-based collaboration engine)
+- y-websocket (Yjs provider)
+
+### Authentication
+- Firebase Google OAuth
