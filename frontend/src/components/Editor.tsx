@@ -947,13 +947,13 @@ function Editor() {
                           </Dialog>
                         )}
                       </div>
-                      <p
+                      <pre
                         className={`mt-2 ml-1 ${
                           isError ? "text-red-600" : "text-white"
                         }`}
                       >
                         {codeOutput}
-                      </p>
+                      </pre>
                     </div>
                   )}
                 </ResizablePanel>
