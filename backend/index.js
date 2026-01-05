@@ -46,6 +46,10 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/project", projectRoutes);
 
+app.get("/health",(req,res)=>{
+  res.status(200).json({msg:"200 OK"});
+});
+
 server.listen(8080, () => {
   console.log(`server live`);
 });
